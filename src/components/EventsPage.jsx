@@ -12,6 +12,7 @@ export const EventsPage = ({ onSelectEvent }) => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedDateRange, setSelectedDateRange] = useState('All');
   const [selectedPriceTier, setSelectedPriceTier] = useState('All');
+  const [selectedSort, setSelectedSort] = useState('date-asc');
   const [favorites, setFavorites] = useState(() => {
     const saved = localStorage.getItem('favorites_db');
     return saved ? JSON.parse(saved) : [];
@@ -59,7 +60,7 @@ export const EventsPage = ({ onSelectEvent }) => {
     );
   };
 
-  // Perform search, category, date, and price filtering dynamically
+  // Perform search, category, date, price filtering, and sorting dynamically
   const filteredEvents = useMemo(() => {
     let result = [...events];
     const today = new Date();
@@ -126,14 +127,36 @@ export const EventsPage = ({ onSelectEvent }) => {
     // 4. Filter by pricing tier
     result = result.filter(e => isInSelectedPriceTier(e));
 
+    // 5. Sort by date or price
+    result.sort((firstEvent, secondEvent) => {
+      if (selectedSort === 'date-asc') {
+        return new Date(`${firstEvent.date}T00:00:00`) - new Date(`${secondEvent.date}T00:00:00`);
+      }
+
+      if (selectedSort === 'date-desc') {
+        return new Date(`${secondEvent.date}T00:00:00`) - new Date(`${firstEvent.date}T00:00:00`);
+      }
+
+      if (selectedSort === 'price-asc') {
+        return getLowestTicketPrice(firstEvent) - getLowestTicketPrice(secondEvent);
+      }
+
+      if (selectedSort === 'price-desc') {
+        return getLowestTicketPrice(secondEvent) - getLowestTicketPrice(firstEvent);
+      }
+
+      return 0;
+    });
+
     return result;
-  }, [events, searchQuery, selectedCategory, selectedDateRange, selectedPriceTier]);
+  }, [events, searchQuery, selectedCategory, selectedDateRange, selectedPriceTier, selectedSort]);
 
   const handleResetFilters = () => {
     setSearchQuery('');
     setSelectedCategory('All');
     setSelectedDateRange('All');
     setSelectedPriceTier('All');
+    setSelectedSort('date-asc');
   };
 
   if (isLoading) {
@@ -236,10 +259,25 @@ export const EventsPage = ({ onSelectEvent }) => {
               <option value="$50+">$50+</option>
             </select>
           </div>
+
+          <div className="filter-group" style={{ gridColumn: 'span 1' }}>
+            <label className="filter-label" htmlFor="sort-select">Sort By</label>
+            <select
+              id="sort-select"
+              className="filter-select"
+              value={selectedSort}
+              onChange={(e) => setSelectedSort(e.target.value)}
+            >
+              <option value="date-asc">Date: Soonest First</option>
+              <option value="date-desc">Date: Latest First</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+            </select>
+          </div>
         </div>
 
         {/* Clear Filters Indicator */}
-        {(searchQuery || selectedCategory !== 'All' || selectedDateRange !== 'All' || selectedPriceTier !== 'All') && (
+        {(searchQuery || selectedCategory !== 'All' || selectedDateRange !== 'All' || selectedPriceTier !== 'All' || selectedSort !== 'date-asc') && (
           <div className="active-filters">
             <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
               Showing {filteredEvents.length} result(s)
