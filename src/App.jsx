@@ -1,122 +1,65 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from 'react';
+import './App.css';
+import { Navbar } from './components/Navbar';
+import { EventsPage } from './components/EventsPage';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentPage, setCurrentPage] = useState('events');
+
+  const handleSelectEvent = (id) => {
+    alert(`Selected Event ID: ${id}. The Event Details Page and Ticket Selection stepper are coming up in Phase 4!`);
+  };
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'events':
+        return <EventsPage onSelectEvent={handleSelectEvent} />;
+      case 'bookings':
+        return (
+          <div className="container">
+            <div style={{ padding: '60px 0', textAlign: 'center' }}>
+              <h1 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>My Bookings</h1>
+              <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto 32px' }}>
+                View and manage your upcoming tickets and cancellation history here.
+              </p>
+              <div style={{
+                display: 'inline-block',
+                padding: '24px 40px',
+                borderRadius: 'var(--radius-lg)',
+                backgroundColor: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
+                boxShadow: 'var(--shadow-sm)'
+              }}>
+                <p style={{ fontWeight: 500, color: 'var(--text-primary)' }}>
+                  Booked tickets list will load in Phase 6.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      default:
+        return <div>Page not found</div>;
+    }
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app-container">
+      {/* Header and navigation */}
+      <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
 
-      <div className="ticks"></div>
+      {/* Main app layout area */}
+      <main className="main-content">
+        {renderPage()}
+      </main>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      {/* Elegant student assignment footer */}
+      <footer className="app-footer">
+        <div className="container">
+          <p>Copyright 2026 VibeVent Platform. Developed for React Project Assignment-1.</p>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      </footer>
+    </div>
+  );
 }
 
-export default App
+export default App;
