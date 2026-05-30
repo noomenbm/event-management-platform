@@ -166,9 +166,22 @@ export const EventsPage = ({ onSelectEvent }) => {
           <h1 className="page-title">Discover Amazing Events</h1>
           <p className="page-subtitle">Fetching local events, hackathons, and concerts...</p>
         </div>
-        <div className="loading-container">
-          <div className="spinner"></div>
-          <p style={{ color: 'var(--text-secondary)' }}>Loading events...</p>
+        <div className="events-grid" aria-label="Loading events">
+          {[1, 2, 3].map((item) => (
+            <article className="event-card skeleton-card" key={item}>
+              <div className="skeleton skeleton-image"></div>
+              <div className="event-card-content">
+                <div className="skeleton skeleton-line short"></div>
+                <div className="skeleton skeleton-line title"></div>
+                <div className="skeleton skeleton-line"></div>
+                <div className="skeleton skeleton-line"></div>
+                <div className="skeleton-row">
+                  <div className="skeleton skeleton-line small"></div>
+                  <div className="skeleton skeleton-pill"></div>
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
       </div>
     );

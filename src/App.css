@@ -277,6 +277,59 @@
   color: var(--success);
 }
 
+.skeleton-card {
+  pointer-events: none;
+}
+
+.skeleton {
+  animation: shimmer 1.25s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface-hover) 0%,
+    var(--border-color) 45%,
+    var(--bg-surface-hover) 90%
+  );
+  background-size: 220% 100%;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-image {
+  aspect-ratio: 16 / 10;
+  border-radius: 0;
+}
+
+.skeleton-line {
+  height: 12px;
+  width: 100%;
+}
+
+.skeleton-line.short {
+  width: 42%;
+}
+
+.skeleton-line.title {
+  height: 18px;
+  width: 78%;
+}
+
+.skeleton-line.small {
+  width: 48%;
+}
+
+.skeleton-row {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.skeleton-pill {
+  border-radius: var(--radius-full);
+  height: 24px;
+  width: 66px;
+}
+
 .loading-container,
 .empty-state,
 .error-state {
@@ -323,6 +376,16 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 120% 0;
+  }
+
+  100% {
+    background-position: -120% 0;
   }
 }
 
