@@ -2,18 +2,28 @@ import { useState } from 'react';
 import './App.css';
 import { Navbar } from './components/Navbar';
 import { EventsPage } from './components/EventsPage';
+import { EventDetailsPage } from './components/EventDetailsPage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('events');
+  const [selectedEventId, setSelectedEventId] = useState(null);
 
   const handleSelectEvent = (id) => {
-    alert(`Selected Event ID: ${id}. The Event Details Page and Ticket Selection stepper are coming up in Phase 4!`);
+    setSelectedEventId(id);
+    setCurrentPage('event-details');
+  };
+
+  const handleBackToEvents = () => {
+    setSelectedEventId(null);
+    setCurrentPage('events');
   };
 
   const renderPage = () => {
     switch (currentPage) {
       case 'events':
         return <EventsPage onSelectEvent={handleSelectEvent} />;
+      case 'event-details':
+        return <EventDetailsPage eventId={selectedEventId} onBack={handleBackToEvents} />;
       case 'bookings':
         return (
           <div className="container">
