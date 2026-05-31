@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { api } from '../services/api';
 import { Modal } from './Modal';
 
@@ -39,18 +39,20 @@ export const MyBookingsPage = ({ showToast }) => {
     fetchBookings();
   }, []);
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const filteredBookings = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  const filteredBookings = bookings.filter((booking) => {
-    const eventDate = new Date(`${booking.eventDate}T00:00:00`);
+    return bookings.filter((booking) => {
+      const eventDate = new Date(`${booking.eventDate}T00:00:00`);
 
-    if (bookingFilter === 'upcoming') {
-      return eventDate >= today && booking.status !== 'cancelled';
-    }
+      if (bookingFilter === 'upcoming') {
+        return eventDate >= today && booking.status !== 'cancelled';
+      }
 
-    return eventDate < today || booking.status === 'cancelled';
-  });
+      return eventDate < today || booking.status === 'cancelled';
+    });
+  }, [bookings, bookingFilter]);
 
   const openCancelModal = (booking) => {
     setBookingToCancel(booking);

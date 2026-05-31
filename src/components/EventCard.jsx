@@ -1,4 +1,6 @@
-export const EventCard = ({ event, onSelect, isFavorite, onToggleFavorite }) => {
+import { memo } from 'react';
+
+const EventCardComponent = ({ event, onSelect, isFavorite, onToggleFavorite }) => {
   const { id, title, description, category, date, time, location, image, ticketTypes } = event;
 
   // Format date to a simple readable format, e.g. "May 30, 2026"
@@ -80,3 +82,5 @@ export const EventCard = ({ event, onSelect, isFavorite, onToggleFavorite }) => 
     </article>
   );
 };
+
+export const EventCard = memo(EventCardComponent);
