@@ -292,7 +292,7 @@ export const EventsPage = ({ onSelectEvent }) => {
         {/* Clear Filters Indicator */}
         {(searchQuery || selectedCategory !== 'All' || selectedDateRange !== 'All' || selectedPriceTier !== 'All' || selectedSort !== 'date-asc') && (
           <div className="active-filters">
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            <span className="result-count">
               Showing {filteredEvents.length} result(s)
             </span>
             <button className="reset-filters-btn" onClick={handleResetFilters}>
@@ -308,7 +308,7 @@ export const EventsPage = ({ onSelectEvent }) => {
           <span className="empty-state-icon" aria-hidden="true">Search</span>
           <h3 className="empty-state-title">No events found</h3>
           <p className="empty-state-description">We couldn't find any events matching your selected search query, category, date, or price filters.</p>
-          <button className="retry-button" onClick={handleResetFilters} style={{ background: 'var(--primary)' }}>
+          <button className="retry-button" onClick={handleResetFilters}>
             Clear Search & Filters
           </button>
         </div>

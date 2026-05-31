@@ -14,9 +14,9 @@ export const Navbar = ({ currentPage, setCurrentPage }) => {
     <header className="app-header">
       <div className="container header-container">
         {/* Branding Logo */}
-        <a href="#" className="logo-link" onClick={() => handleNavClick('events')}>
+        <button type="button" className="logo-link" onClick={() => handleNavClick('events')} aria-label="Go to Events">
           <span>Vibe<span className="logo-accent">Vent</span></span>
-        </a>
+        </button>
 
         {/* Mobile Toggle Button */}
         <button
@@ -60,7 +60,7 @@ export const Navbar = ({ currentPage, setCurrentPage }) => {
           </ul>
 
           {/* Theme Switcher & Mock User Profile info */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div className="navbar-actions">
             <button
               className="theme-toggle-btn"
               onClick={toggleTheme}
@@ -89,24 +89,8 @@ export const Navbar = ({ currentPage, setCurrentPage }) => {
             </button>
 
             {/* Mock User Badge */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '6px 12px',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border-color)',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              backgroundColor: 'var(--bg-app)',
-              color: 'var(--text-secondary)'
-            }}>
-              <div style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--success)'
-              }}></div>
+            <div className="user-badge" aria-label="Current user">
+              <div className="user-status-dot"></div>
               <span>John Doe</span>
             </div>
           </div>
