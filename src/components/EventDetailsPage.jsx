@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { api } from '../services/api';
+import { bookingReducer, initialBookingState } from '../reducers/bookingReducer';
 
 const formatDate = (dateStr) => {
   const date = new Date(`${dateStr}T00:00:00`);
@@ -15,6 +16,7 @@ export const EventDetailsPage = ({ eventId, onBack }) => {
   const [event, setEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [bookingState, dispatch] = useReducer(bookingReducer, initialBookingState);
 
   const fetchEventDetails = async () => {
     setIsLoading(true);
@@ -36,6 +38,27 @@ export const EventDetailsPage = ({ eventId, onBack }) => {
     fetchEventDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId]);
+
+  const getTicketQuantity = (ticketId) => bookingState.quantities[ticketId] || 0;
+
+  const handleQuantityChange = (ticket, changeAmount) => {
+    const currentQuantity = getTicketQuantity(ticket.id);
+    const nextQuantity = Math.max(0, Math.min(ticket.available, currentQuantity + changeAmount));
+
+    dispatch({
+      type: 'SET_TICKET_QUANTITY',
+      ticketId: ticket.id,
+      quantity: nextQuantity,
+    });
+  };
+
+  const selectedTicketCount = event
+    ? event.ticketTypes.reduce((total, ticket) => total + getTicketQuantity(ticket.id), 0)
+    : 0;
+
+  const totalPrice = event
+    ? event.ticketTypes.reduce((total, ticket) => total + getTicketQuantity(ticket.id) * ticket.price, 0)
+    : 0;
 
   if (isLoading) {
     return (
@@ -112,11 +135,33 @@ export const EventDetailsPage = ({ eventId, onBack }) => {
                   <p>{ticket.available} available</p>
                 </div>
                 <strong>{ticket.price === 0 ? 'Free' : `$${ticket.price}`}</strong>
+                <div className="quantity-stepper" aria-label={`${ticket.name} quantity`}>
+                  <button
+                    type="button"
+                    onClick={() => handleQuantityChange(ticket, -1)}
+                    disabled={getTicketQuantity(ticket.id) === 0}
+                  >
+                    -
+                  </button>
+                  <span>{getTicketQuantity(ticket.id)}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleQuantityChange(ticket, 1)}
+                    disabled={getTicketQuantity(ticket.id) === ticket.available}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             ))}
           </div>
 
-          <button className="primary-button full-width" type="button">
+          <div className="ticket-total-row">
+            <span>{selectedTicketCount} ticket(s)</span>
+            <strong>Total: ${totalPrice}</strong>
+          </div>
+
+          <button className="primary-button full-width" type="button" disabled={selectedTicketCount === 0}>
             Book Tickets
           </button>
         </aside>
