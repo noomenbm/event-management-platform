@@ -60,6 +60,15 @@ export const EventDetailsPage = ({ eventId, onBack }) => {
     ? event.ticketTypes.reduce((total, ticket) => total + getTicketQuantity(ticket.id) * ticket.price, 0)
     : 0;
 
+  const handleAttendeeChange = (index, field, value) => {
+    dispatch({
+      type: 'UPDATE_ATTENDEE',
+      index,
+      field,
+      value,
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="container">
@@ -126,44 +135,105 @@ export const EventDetailsPage = ({ eventId, onBack }) => {
         </article>
 
         <aside className="ticket-panel" aria-labelledby="tickets-title">
-          <h2 id="tickets-title">Available Tickets</h2>
-          <div className="ticket-type-list">
-            {event.ticketTypes.map((ticket) => (
-              <div className="ticket-type-row" key={ticket.id}>
-                <div>
-                  <h3>{ticket.name}</h3>
-                  <p>{ticket.available} available</p>
-                </div>
-                <strong>{ticket.price === 0 ? 'Free' : `$${ticket.price}`}</strong>
-                <div className="quantity-stepper" aria-label={`${ticket.name} quantity`}>
-                  <button
-                    type="button"
-                    onClick={() => handleQuantityChange(ticket, -1)}
-                    disabled={getTicketQuantity(ticket.id) === 0}
-                  >
-                    -
-                  </button>
-                  <span>{getTicketQuantity(ticket.id)}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleQuantityChange(ticket, 1)}
-                    disabled={getTicketQuantity(ticket.id) === ticket.available}
-                  >
-                    +
-                  </button>
-                </div>
+          <p className="step-label">Step {bookingState.step} of 3</p>
+          <h2 id="tickets-title">{bookingState.step === 1 ? 'Select Tickets' : 'Attendee Details'}</h2>
+
+          {bookingState.step === 1 && (
+            <>
+              <div className="ticket-type-list">
+                {event.ticketTypes.map((ticket) => (
+                  <div className="ticket-type-row" key={ticket.id}>
+                    <div>
+                      <h3>{ticket.name}</h3>
+                      <p>{ticket.available} available</p>
+                    </div>
+                    <strong>{ticket.price === 0 ? 'Free' : `$${ticket.price}`}</strong>
+                    <div className="quantity-stepper" aria-label={`${ticket.name} quantity`}>
+                      <button
+                        type="button"
+                        onClick={() => handleQuantityChange(ticket, -1)}
+                        disabled={getTicketQuantity(ticket.id) === 0}
+                      >
+                        -
+                      </button>
+                      <span>{getTicketQuantity(ticket.id)}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleQuantityChange(ticket, 1)}
+                        disabled={getTicketQuantity(ticket.id) === ticket.available}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          <div className="ticket-total-row">
-            <span>{selectedTicketCount} ticket(s)</span>
-            <strong>Total: ${totalPrice}</strong>
-          </div>
+              <div className="ticket-total-row">
+                <span>{selectedTicketCount} ticket(s)</span>
+                <strong>Total: ${totalPrice}</strong>
+              </div>
 
-          <button className="primary-button full-width" type="button" disabled={selectedTicketCount === 0}>
-            Book Tickets
-          </button>
+              <button
+                className="primary-button full-width"
+                type="button"
+                disabled={selectedTicketCount === 0}
+                onClick={() => dispatch({ type: 'SET_STEP', step: 2 })}
+              >
+                Continue
+              </button>
+            </>
+          )}
+
+          {bookingState.step === 2 && (
+            <>
+              <div className="attendee-list">
+                {bookingState.attendees.map((attendee, index) => (
+                  <fieldset className="attendee-form" key={`attendee-${index + 1}`}>
+                    <legend>Attendee {index + 1}</legend>
+                    <label>
+                      Name
+                      <input
+                        type="text"
+                        value={attendee.name}
+                        onChange={(e) => handleAttendeeChange(index, 'name', e.target.value)}
+                      />
+                    </label>
+                    <label>
+                      Email
+                      <input
+                        type="email"
+                        value={attendee.email}
+                        onChange={(e) => handleAttendeeChange(index, 'email', e.target.value)}
+                      />
+                    </label>
+                    <label>
+                      Phone
+                      <input
+                        type="tel"
+                        value={attendee.phone}
+                        onChange={(e) => handleAttendeeChange(index, 'phone', e.target.value)}
+                      />
+                    </label>
+                  </fieldset>
+                ))}
+              </div>
+
+              <div className="ticket-total-row">
+                <span>{selectedTicketCount} ticket(s)</span>
+                <strong>Total: ${totalPrice}</strong>
+              </div>
+
+              <div className="booking-action-row">
+                <button className="secondary-button" type="button" onClick={() => dispatch({ type: 'SET_STEP', step: 1 })}>
+                  Back
+                </button>
+                <button className="primary-button" type="button">
+                  Continue
+                </button>
+              </div>
+            </>
+          )}
         </aside>
       </section>
     </div>

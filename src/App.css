@@ -498,6 +498,14 @@
   margin-bottom: 16px;
 }
 
+.step-label {
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
 .ticket-type-list {
   display: grid;
   gap: 12px;
@@ -576,6 +584,55 @@
 
 .ticket-total-row strong {
   color: var(--text-primary);
+}
+
+.attendee-list {
+  display: grid;
+  gap: 14px;
+}
+
+.attendee-form {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.attendee-form legend {
+  color: var(--text-primary);
+  font-weight: 800;
+  padding: 0 6px;
+}
+
+.attendee-form label {
+  color: var(--text-secondary);
+  display: grid;
+  font-size: 0.88rem;
+  font-weight: 700;
+  gap: 6px;
+}
+
+.attendee-form input {
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font: inherit;
+  min-height: 40px;
+  padding: 0 10px;
+}
+
+.attendee-form input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+  outline: none;
+}
+
+.booking-action-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr;
 }
 
 .details-secondary-action {
