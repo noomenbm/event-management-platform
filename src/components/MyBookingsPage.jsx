@@ -12,6 +12,7 @@ const formatDate = (dateStr) => {
 
 export const MyBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
+  const [bookingFilter, setBookingFilter] = useState('upcoming');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -35,12 +36,44 @@ export const MyBookingsPage = () => {
     fetchBookings();
   }, []);
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const filteredBookings = bookings.filter((booking) => {
+    const eventDate = new Date(`${booking.eventDate}T00:00:00`);
+
+    if (bookingFilter === 'upcoming') {
+      return eventDate >= today && booking.status !== 'cancelled';
+    }
+
+    return eventDate < today || booking.status === 'cancelled';
+  });
+
   return (
     <div className="container">
       <div className="page-hero">
         <h1 className="page-title">My Bookings</h1>
         <p className="page-subtitle">View your saved reservations and booking reference numbers.</p>
       </div>
+
+      {!isLoading && !error && bookings.length > 0 && (
+        <div className="booking-filter" aria-label="Booking filter">
+          <button
+            className={bookingFilter === 'upcoming' ? 'active' : ''}
+            type="button"
+            onClick={() => setBookingFilter('upcoming')}
+          >
+            Upcoming
+          </button>
+          <button
+            className={bookingFilter === 'past' ? 'active' : ''}
+            type="button"
+            onClick={() => setBookingFilter('past')}
+          >
+            Past
+          </button>
+        </div>
+      )}
 
       {isLoading && (
         <div className="booking-list">
@@ -72,9 +105,16 @@ export const MyBookingsPage = () => {
         </div>
       )}
 
-      {!isLoading && !error && bookings.length > 0 && (
+      {!isLoading && !error && bookings.length > 0 && filteredBookings.length === 0 && (
+        <div className="empty-state">
+          <h2 className="empty-state-title">No {bookingFilter} bookings</h2>
+          <p className="empty-state-description">Bookings matching this filter will appear here.</p>
+        </div>
+      )}
+
+      {!isLoading && !error && filteredBookings.length > 0 && (
         <div className="booking-list">
-          {bookings.map((booking) => {
+          {filteredBookings.map((booking) => {
             const ticketCount = booking.tickets.reduce((total, ticket) => total + ticket.quantity, 0);
 
             return (

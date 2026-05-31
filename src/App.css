@@ -702,6 +702,30 @@
   gap: 16px;
 }
 
+.booking-filter {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 6px;
+}
+
+.booking-filter button {
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-weight: 800;
+  min-height: 38px;
+  padding: 0 16px;
+}
+
+.booking-filter button:hover,
+.booking-filter button.active {
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
 .booking-card {
   align-items: center;
   background-color: var(--bg-surface);
