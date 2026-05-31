@@ -1,10 +1,149 @@
-# Hands on project - 1
+# VibeVent Event Management Platform
 
-## Event Management Platform - Project
+React Project 1 - Event Management Platform.
 
-## Requirements Document
+VibeVent lets users browse events, filter and sort the event directory, view event details, book tickets, and manage their bookings.
 
-## Project Overview
+## How to Run This Project
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Start the JSON Server API
+
+Open one terminal and run:
+
+```bash
+npm run server
+```
+
+This starts the mock backend from `db.json` on:
+
+```text
+http://localhost:3001
+```
+
+### 3. Start the React app
+
+Open a second terminal and run:
+
+```bash
+npm run dev
+```
+
+Then open the Vite URL shown in the terminal, usually:
+
+```text
+http://localhost:5173/
+```
+
+The React app uses a Vite proxy, so frontend requests go through `/api` and are forwarded to JSON Server.
+
+## Available Scripts
+
+```bash
+npm run dev
+```
+
+Starts the React development server.
+
+```bash
+npm run server
+```
+
+Starts JSON Server using `db.json`.
+
+```bash
+npm run build
+```
+
+Builds the production version of the app.
+
+```bash
+npm run lint
+```
+
+Runs ESLint checks.
+
+## Implemented Features
+
+- Events listing with card layout
+- Event search by title
+- Category, date range, and price range filters
+- Sorting by date and price
+- Favorite/like event cards with browser storage
+- Event details page with ticket types
+- Three-step ticket booking flow
+- Ticket quantity steppers with live total
+- Dynamic attendee forms
+- Attendee validation with inline errors
+- Booking confirmation with reference number
+- My Bookings page
+- Upcoming/Past bookings filter
+- Booking cancellation with confirmation modal
+- Success/error toast notifications
+- Light/dark theme toggle with persistence
+- Loading, error, and empty states
+- Responsive layout for desktop and mobile
+
+## Technical Requirements Covered
+
+- Component composition and props
+- `useState` for UI state
+- `useReducer` for booking flow state
+- `useEffect` for API fetching and browser storage sync
+- Context API for theme state
+- `useRef` for search input autofocus
+- Portals for modal and toast rendering
+- Conditional rendering
+- List rendering with keys
+- Event handling
+- Form handling and validation
+- `React.memo` and `useMemo` performance examples
+
+## API Endpoints Used
+
+The app uses JSON Server with these endpoints:
+
+- `GET /events`
+- `GET /events/:id`
+- `GET /bookings?userId=user1`
+- `POST /bookings`
+- `PATCH /bookings/:id`
+
+## Project Structure
+
+```text
+db.json
+src/
+  components/
+    EventCard.jsx
+    EventDetailsPage.jsx
+    EventsPage.jsx
+    Modal.jsx
+    MyBookingsPage.jsx
+    Navbar.jsx
+    Toast.jsx
+  context/
+    ThemeContext.jsx
+  reducers/
+    bookingReducer.js
+  services/
+    api.js
+```
+
+## Assignment Requirements
+
+### Hands on project - 1
+
+### Event Management Platform - Project
+
+### Requirements Document
+
+### Project Overview
 
 Build an Event Management Platform where users can browse
 events, book tickets, and manage their bookings.
