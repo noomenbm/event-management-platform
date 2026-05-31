@@ -12,6 +12,9 @@ const formatDate = (dateStr) => {
   });
 };
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phonePattern = /^[0-9+\-()\s]{7,15}$/;
+
 export const EventDetailsPage = ({ eventId, onBack }) => {
   const [event, setEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,6 +63,15 @@ export const EventDetailsPage = ({ eventId, onBack }) => {
     ? event.ticketTypes.reduce((total, ticket) => total + getTicketQuantity(ticket.id) * ticket.price, 0)
     : 0;
 
+  const selectedTickets = event
+    ? event.ticketTypes
+      .map((ticket) => ({
+        ...ticket,
+        quantity: getTicketQuantity(ticket.id),
+      }))
+      .filter((ticket) => ticket.quantity > 0)
+    : [];
+
   const handleAttendeeChange = (index, field, value) => {
     dispatch({
       type: 'UPDATE_ATTENDEE',
@@ -67,6 +79,39 @@ export const EventDetailsPage = ({ eventId, onBack }) => {
       field,
       value,
     });
+  };
+
+  const validateAttendees = () => {
+    const errors = {};
+
+    bookingState.attendees.forEach((attendee, index) => {
+      if (!attendee.name.trim()) {
+        errors[`attendee-${index}-name`] = 'Name is required.';
+      }
+
+      if (!emailPattern.test(attendee.email)) {
+        errors[`attendee-${index}-email`] = 'Enter a valid email address.';
+      }
+
+      if (!phonePattern.test(attendee.phone)) {
+        errors[`attendee-${index}-phone`] = 'Enter a valid phone number.';
+      }
+    });
+
+    dispatch({ type: 'SET_ERRORS', errors });
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleAttendeeContinue = () => {
+    if (validateAttendees()) {
+      dispatch({ type: 'SET_STEP', step: 3 });
+    }
+  };
+
+  const getPanelTitle = () => {
+    if (bookingState.step === 1) return 'Select Tickets';
+    if (bookingState.step === 2) return 'Attendee Details';
+    return 'Review Booking';
   };
 
   if (isLoading) {
@@ -136,7 +181,7 @@ export const EventDetailsPage = ({ eventId, onBack }) => {
 
         <aside className="ticket-panel" aria-labelledby="tickets-title">
           <p className="step-label">Step {bookingState.step} of 3</p>
-          <h2 id="tickets-title">{bookingState.step === 1 ? 'Select Tickets' : 'Attendee Details'}</h2>
+          <h2 id="tickets-title">{getPanelTitle()}</h2>
 
           {bookingState.step === 1 && (
             <>
@@ -197,7 +242,11 @@ export const EventDetailsPage = ({ eventId, onBack }) => {
                         type="text"
                         value={attendee.name}
                         onChange={(e) => handleAttendeeChange(index, 'name', e.target.value)}
+                        aria-invalid={Boolean(bookingState.errors[`attendee-${index}-name`])}
                       />
+                      {bookingState.errors[`attendee-${index}-name`] && (
+                        <span className="input-error">{bookingState.errors[`attendee-${index}-name`]}</span>
+                      )}
                     </label>
                     <label>
                       Email
@@ -205,7 +254,11 @@ export const EventDetailsPage = ({ eventId, onBack }) => {
                         type="email"
                         value={attendee.email}
                         onChange={(e) => handleAttendeeChange(index, 'email', e.target.value)}
+                        aria-invalid={Boolean(bookingState.errors[`attendee-${index}-email`])}
                       />
+                      {bookingState.errors[`attendee-${index}-email`] && (
+                        <span className="input-error">{bookingState.errors[`attendee-${index}-email`]}</span>
+                      )}
                     </label>
                     <label>
                       Phone
@@ -213,7 +266,11 @@ export const EventDetailsPage = ({ eventId, onBack }) => {
                         type="tel"
                         value={attendee.phone}
                         onChange={(e) => handleAttendeeChange(index, 'phone', e.target.value)}
+                        aria-invalid={Boolean(bookingState.errors[`attendee-${index}-phone`])}
                       />
+                      {bookingState.errors[`attendee-${index}-phone`] && (
+                        <span className="input-error">{bookingState.errors[`attendee-${index}-phone`]}</span>
+                      )}
                     </label>
                   </fieldset>
                 ))}
@@ -228,8 +285,39 @@ export const EventDetailsPage = ({ eventId, onBack }) => {
                 <button className="secondary-button" type="button" onClick={() => dispatch({ type: 'SET_STEP', step: 1 })}>
                   Back
                 </button>
-                <button className="primary-button" type="button">
+                <button className="primary-button" type="button" onClick={handleAttendeeContinue}>
                   Continue
+                </button>
+              </div>
+            </>
+          )}
+
+          {bookingState.step === 3 && (
+            <>
+              <div className="booking-summary">
+                <h3>{event.title}</h3>
+                <p>{formatDate(event.date)} at {event.time}</p>
+                <div className="summary-list">
+                  {selectedTickets.map((ticket) => (
+                    <div key={ticket.id}>
+                      <span>{ticket.name} x {ticket.quantity}</span>
+                      <strong>${ticket.price * ticket.quantity}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="ticket-total-row">
+                <span>{selectedTicketCount} ticket(s)</span>
+                <strong>Total: ${totalPrice}</strong>
+              </div>
+
+              <div className="booking-action-row">
+                <button className="secondary-button" type="button" onClick={() => dispatch({ type: 'SET_STEP', step: 2 })}>
+                  Back
+                </button>
+                <button className="primary-button" type="button">
+                  Confirm
                 </button>
               </div>
             </>

@@ -629,10 +629,54 @@
   outline: none;
 }
 
+.attendee-form input[aria-invalid="true"] {
+  border-color: var(--error);
+}
+
+.input-error {
+  color: var(--error);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
 .booking-action-row {
   display: grid;
   gap: 10px;
   grid-template-columns: 1fr 1fr;
+}
+
+.booking-summary {
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+
+.booking-summary h3 {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.booking-summary p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+.summary-list {
+  display: grid;
+  gap: 8px;
+}
+
+.summary-list div {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.summary-list span {
+  color: var(--text-secondary);
 }
 
 .details-secondary-action {

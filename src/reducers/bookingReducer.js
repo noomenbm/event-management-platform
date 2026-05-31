@@ -2,6 +2,7 @@ export const initialBookingState = {
   step: 1,
   quantities: {},
   attendees: [],
+  errors: {},
 };
 
 const buildAttendees = (count, currentAttendees) =>
@@ -29,9 +30,14 @@ export const bookingReducer = (state, action) => {
         ...state,
         step: action.step,
       };
-    case 'UPDATE_ATTENDEE':
+    case 'UPDATE_ATTENDEE': {
+      const fieldErrorKey = `attendee-${action.index}-${action.field}`;
+      const nextErrors = { ...state.errors };
+      delete nextErrors[fieldErrorKey];
+
       return {
         ...state,
+        errors: nextErrors,
         attendees: state.attendees.map((attendee, index) => {
           if (index !== action.index) return attendee;
 
@@ -40,6 +46,12 @@ export const bookingReducer = (state, action) => {
             [action.field]: action.value,
           };
         }),
+      };
+    }
+    case 'SET_ERRORS':
+      return {
+        ...state,
+        errors: action.errors,
       };
     case 'RESET_BOOKING':
       return initialBookingState;
