@@ -147,6 +147,12 @@
   transform: translateY(-1px);
 }
 
+.danger-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+}
+
 .primary-button,
 .back-button {
   border-radius: var(--radius-sm);

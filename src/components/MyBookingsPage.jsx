@@ -15,6 +15,7 @@ export const MyBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [bookingFilter, setBookingFilter] = useState('upcoming');
   const [bookingToCancel, setBookingToCancel] = useState(null);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -57,6 +58,28 @@ export const MyBookingsPage = () => {
 
   const closeCancelModal = () => {
     setBookingToCancel(null);
+  };
+
+  const handleCancelBooking = async () => {
+    if (!bookingToCancel) return;
+
+    setIsCancelling(true);
+
+    try {
+      const cancelledBooking = await api.cancelBooking(bookingToCancel.id);
+      setBookings((currentBookings) =>
+        currentBookings.map((booking) =>
+          booking.id === cancelledBooking.id ? cancelledBooking : booking
+        )
+      );
+      closeCancelModal();
+      setBookingFilter('past');
+    } catch (err) {
+      setError(err.message || 'Unable to cancel booking.');
+      closeCancelModal();
+    } finally {
+      setIsCancelling(false);
+    }
   };
 
   return (
@@ -158,14 +181,14 @@ export const MyBookingsPage = () => {
             <button className="secondary-button" type="button" onClick={closeCancelModal}>
               Keep Booking
             </button>
-            <button className="danger-button" type="button" onClick={closeCancelModal}>
-              Confirm Cancel
+            <button className="danger-button" type="button" onClick={handleCancelBooking} disabled={isCancelling}>
+              {isCancelling ? 'Cancelling...' : 'Confirm Cancel'}
             </button>
           </>
         )}
       >
         <p>
-          This will cancel your booking for {bookingToCancel?.eventTitle}. You can review it in Past bookings after cancellation is connected.
+          This will cancel your booking for {bookingToCancel?.eventTitle}. You can review it in Past bookings after it is cancelled.
         </p>
       </Modal>
     </div>
