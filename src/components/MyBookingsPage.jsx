@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../services/api';
+import { Modal } from './Modal';
 
 const formatDate = (dateStr) => {
   const date = new Date(`${dateStr}T00:00:00`);
@@ -13,6 +14,7 @@ const formatDate = (dateStr) => {
 export const MyBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [bookingFilter, setBookingFilter] = useState('upcoming');
+  const [bookingToCancel, setBookingToCancel] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -48,6 +50,14 @@ export const MyBookingsPage = () => {
 
     return eventDate < today || booking.status === 'cancelled';
   });
+
+  const openCancelModal = (booking) => {
+    setBookingToCancel(booking);
+  };
+
+  const closeCancelModal = () => {
+    setBookingToCancel(null);
+  };
 
   return (
     <div className="container">
@@ -127,12 +137,37 @@ export const MyBookingsPage = () => {
                 </div>
                 <div className="booking-card-side">
                   <strong>${booking.totalAmount}</strong>
+                  {bookingFilter === 'upcoming' && booking.status === 'confirmed' && (
+                    <button className="danger-button" type="button" onClick={() => openCancelModal(booking)}>
+                      Cancel
+                    </button>
+                  )}
                 </div>
               </article>
             );
           })}
         </div>
       )}
+
+      <Modal
+        isOpen={Boolean(bookingToCancel)}
+        title="Cancel booking?"
+        onClose={closeCancelModal}
+        actions={(
+          <>
+            <button className="secondary-button" type="button" onClick={closeCancelModal}>
+              Keep Booking
+            </button>
+            <button className="danger-button" type="button" onClick={closeCancelModal}>
+              Confirm Cancel
+            </button>
+          </>
+        )}
+      >
+        <p>
+          This will cancel your booking for {bookingToCancel?.eventTitle}. You can review it in Past bookings after cancellation is connected.
+        </p>
+      </Modal>
     </div>
   );
 };

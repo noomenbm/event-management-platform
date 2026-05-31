@@ -133,6 +133,20 @@
   transform: translateY(-1px);
 }
 
+.danger-button {
+  background-color: var(--error);
+  border-radius: var(--radius-sm);
+  color: var(--text-on-primary);
+  font-weight: 800;
+  min-height: 40px;
+  padding: 0 16px;
+}
+
+.danger-button:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
 .primary-button,
 .back-button {
   border-radius: var(--radius-sm);
@@ -752,6 +766,8 @@
 }
 
 .booking-card-side {
+  display: grid;
+  gap: 10px;
   text-align: right;
 }
 
@@ -799,6 +815,63 @@
   display: grid;
   gap: 14px;
   align-content: center;
+}
+
+.modal-overlay {
+  align-items: center;
+  background-color: rgba(15, 23, 42, 0.56);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 20px;
+  position: fixed;
+  z-index: 200;
+}
+
+.modal-panel {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  max-width: 460px;
+  width: 100%;
+}
+
+.modal-header {
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  padding: 18px;
+}
+
+.modal-header h2 {
+  font-size: 1.25rem;
+}
+
+.modal-close-button {
+  align-items: center;
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  display: flex;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+}
+
+.modal-body {
+  color: var(--text-secondary);
+  padding: 18px;
+}
+
+.modal-actions {
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 18px;
 }
 
 @keyframes spin {
