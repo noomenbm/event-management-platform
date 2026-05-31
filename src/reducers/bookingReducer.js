@@ -3,6 +3,7 @@ export const initialBookingState = {
   quantities: {},
   attendees: [],
   errors: {},
+  booking: null,
 };
 
 const buildAttendees = (count, currentAttendees) =>
@@ -52,6 +53,12 @@ export const bookingReducer = (state, action) => {
       return {
         ...state,
         errors: action.errors,
+      };
+    case 'SET_BOOKING':
+      return {
+        ...state,
+        booking: action.booking,
+        errors: {},
       };
     case 'RESET_BOOKING':
       return initialBookingState;

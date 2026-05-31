@@ -15,9 +15,10 @@ const formatDate = (dateStr) => {
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonePattern = /^[0-9+\-()\s]{7,15}$/;
 
-export const EventDetailsPage = ({ eventId, onBack }) => {
+export const EventDetailsPage = ({ eventId, onBack, onViewBookings }) => {
   const [event, setEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [bookingState, dispatch] = useReducer(bookingReducer, initialBookingState);
 
@@ -105,6 +106,40 @@ export const EventDetailsPage = ({ eventId, onBack }) => {
   const handleAttendeeContinue = () => {
     if (validateAttendees()) {
       dispatch({ type: 'SET_STEP', step: 3 });
+    }
+  };
+
+  const handleConfirmBooking = async () => {
+    setIsSubmitting(true);
+
+    try {
+      const referenceNumber = `BK${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+      const booking = await api.createBooking({
+        id: crypto.randomUUID(),
+        userId: 'user1',
+        eventId: event.id,
+        eventTitle: event.title,
+        eventDate: event.date,
+        tickets: selectedTickets.map((ticket) => ({
+          type: ticket.name,
+          quantity: ticket.quantity,
+          price: ticket.price,
+        })),
+        attendees: bookingState.attendees,
+        totalAmount: totalPrice,
+        status: 'confirmed',
+        bookingDate: new Date().toISOString().slice(0, 10),
+        referenceNumber,
+      });
+
+      dispatch({ type: 'SET_BOOKING', booking });
+    } catch (err) {
+      dispatch({
+        type: 'SET_ERRORS',
+        errors: { submit: err.message || 'Unable to create booking. Please try again.' },
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -294,32 +329,48 @@ export const EventDetailsPage = ({ eventId, onBack }) => {
 
           {bookingState.step === 3 && (
             <>
-              <div className="booking-summary">
-                <h3>{event.title}</h3>
-                <p>{formatDate(event.date)} at {event.time}</p>
-                <div className="summary-list">
-                  {selectedTickets.map((ticket) => (
-                    <div key={ticket.id}>
-                      <span>{ticket.name} x {ticket.quantity}</span>
-                      <strong>${ticket.price * ticket.quantity}</strong>
-                    </div>
-                  ))}
+              {bookingState.booking ? (
+                <div className="booking-success">
+                  <h3>Booking Confirmed</h3>
+                  <p>Your reference number is <strong>{bookingState.booking.referenceNumber}</strong>.</p>
+                  <button className="primary-button full-width" type="button" onClick={onViewBookings}>
+                    View My Bookings
+                  </button>
                 </div>
-              </div>
+              ) : (
+                <>
+                  <div className="booking-summary">
+                    <h3>{event.title}</h3>
+                    <p>{formatDate(event.date)} at {event.time}</p>
+                    <div className="summary-list">
+                      {selectedTickets.map((ticket) => (
+                        <div key={ticket.id}>
+                          <span>{ticket.name} x {ticket.quantity}</span>
+                          <strong>${ticket.price * ticket.quantity}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
-              <div className="ticket-total-row">
-                <span>{selectedTicketCount} ticket(s)</span>
-                <strong>Total: ${totalPrice}</strong>
-              </div>
+                  <div className="ticket-total-row">
+                    <span>{selectedTicketCount} ticket(s)</span>
+                    <strong>Total: ${totalPrice}</strong>
+                  </div>
 
-              <div className="booking-action-row">
-                <button className="secondary-button" type="button" onClick={() => dispatch({ type: 'SET_STEP', step: 2 })}>
-                  Back
-                </button>
-                <button className="primary-button" type="button">
-                  Confirm
-                </button>
-              </div>
+                  {bookingState.errors.submit && (
+                    <p className="input-error">{bookingState.errors.submit}</p>
+                  )}
+
+                  <div className="booking-action-row">
+                    <button className="secondary-button" type="button" onClick={() => dispatch({ type: 'SET_STEP', step: 2 })}>
+                      Back
+                    </button>
+                    <button className="primary-button" type="button" onClick={handleConfirmBooking} disabled={isSubmitting}>
+                      {isSubmitting ? 'Saving...' : 'Confirm'}
+                    </button>
+                  </div>
+                </>
+              )}
             </>
           )}
         </aside>
