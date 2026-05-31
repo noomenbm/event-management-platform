@@ -880,6 +880,27 @@
   padding: 18px;
 }
 
+.toast {
+  border-radius: var(--radius-sm);
+  bottom: 24px;
+  box-shadow: var(--shadow-lg);
+  color: var(--text-on-primary);
+  font-weight: 800;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 14px 18px;
+  position: fixed;
+  right: 24px;
+  z-index: 250;
+}
+
+.toast-success {
+  background-color: var(--success);
+}
+
+.toast-error {
+  background-color: var(--error);
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -1049,6 +1070,12 @@
 
   .booking-card-side {
     text-align: left;
+  }
+
+  .toast {
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
   }
 
   .mobile-nav-toggle {

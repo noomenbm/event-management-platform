@@ -15,7 +15,7 @@ const formatDate = (dateStr) => {
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonePattern = /^[0-9+\-()\s]{7,15}$/;
 
-export const EventDetailsPage = ({ eventId, onBack, onViewBookings }) => {
+export const EventDetailsPage = ({ eventId, onBack, onViewBookings, showToast }) => {
   const [event, setEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -133,11 +133,13 @@ export const EventDetailsPage = ({ eventId, onBack, onViewBookings }) => {
       });
 
       dispatch({ type: 'SET_BOOKING', booking });
+      showToast('Booking created successfully.');
     } catch (err) {
       dispatch({
         type: 'SET_ERRORS',
         errors: { submit: err.message || 'Unable to create booking. Please try again.' },
       });
+      showToast('Unable to create booking.', 'error');
     } finally {
       setIsSubmitting(false);
     }

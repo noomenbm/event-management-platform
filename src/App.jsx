@@ -1,13 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import { Navbar } from './components/Navbar';
 import { EventsPage } from './components/EventsPage';
 import { EventDetailsPage } from './components/EventDetailsPage';
 import { MyBookingsPage } from './components/MyBookingsPage';
+import { Toast } from './components/Toast';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('events');
   const [selectedEventId, setSelectedEventId] = useState(null);
+  const [toast, setToast] = useState({ message: '', type: 'success' });
+
+  useEffect(() => {
+    if (!toast.message) return undefined;
+
+    const timerId = setTimeout(() => {
+      setToast({ message: '', type: 'success' });
+    }, 2600);
+
+    return () => clearTimeout(timerId);
+  }, [toast.message]);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+  };
 
   const handleSelectEvent = (id) => {
     setSelectedEventId(id);
@@ -29,10 +45,11 @@ function App() {
             eventId={selectedEventId}
             onBack={handleBackToEvents}
             onViewBookings={() => setCurrentPage('bookings')}
+            showToast={showToast}
           />
         );
       case 'bookings':
-        return <MyBookingsPage />;
+        return <MyBookingsPage showToast={showToast} />;
       default:
         return <div>Page not found</div>;
     }
@@ -54,6 +71,8 @@ function App() {
           <p>Copyright 2026 VibeVent Platform. Developed for React Project Assignment-1.</p>
         </div>
       </footer>
+
+      <Toast toast={toast} />
     </div>
   );
 }

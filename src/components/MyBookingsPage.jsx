@@ -11,7 +11,7 @@ const formatDate = (dateStr) => {
   });
 };
 
-export const MyBookingsPage = () => {
+export const MyBookingsPage = ({ showToast }) => {
   const [bookings, setBookings] = useState([]);
   const [bookingFilter, setBookingFilter] = useState('upcoming');
   const [bookingToCancel, setBookingToCancel] = useState(null);
@@ -74,9 +74,11 @@ export const MyBookingsPage = () => {
       );
       closeCancelModal();
       setBookingFilter('past');
+      showToast('Booking cancelled successfully.');
     } catch (err) {
       setError(err.message || 'Unable to cancel booking.');
       closeCancelModal();
+      showToast('Unable to cancel booking.', 'error');
     } finally {
       setIsCancelling(false);
     }
