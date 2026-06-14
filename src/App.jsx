@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import './App.css';
 import { Navbar } from './components/Navbar';
-import { EventsPage } from './components/EventsPage';
-import { EventDetailsPage } from './components/EventDetailsPage';
-import { MyBookingsPage } from './components/MyBookingsPage';
 import { Toast } from './components/Toast';
+import { EventDetailsPage } from './pages/EventDetailsPage';
+import { EventsPage } from './pages/EventsPage';
+import { MyBookingsPage } from './pages/MyBookingsPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('events');
-  const [selectedEventId, setSelectedEventId] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
   const [toast, setToast] = useState({ message: '', type: 'success' });
 
   useEffect(() => {
@@ -25,34 +27,15 @@ function App() {
     setToast({ message, type });
   };
 
-  const handleSelectEvent = (id) => {
-    setSelectedEventId(id);
-    setCurrentPage('event-details');
-  };
+  const currentPage = location.pathname.startsWith('/my-bookings') ? 'bookings' : 'events';
 
-  const handleBackToEvents = () => {
-    setSelectedEventId(null);
-    setCurrentPage('events');
-  };
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'events':
-        return <EventsPage onSelectEvent={handleSelectEvent} />;
-      case 'event-details':
-        return (
-          <EventDetailsPage
-            eventId={selectedEventId}
-            onBack={handleBackToEvents}
-            onViewBookings={() => setCurrentPage('bookings')}
-            showToast={showToast}
-          />
-        );
-      case 'bookings':
-        return <MyBookingsPage showToast={showToast} />;
-      default:
-        return <div>Page not found</div>;
+  const setCurrentPage = (page) => {
+    if (page === 'bookings') {
+      navigate('/my-bookings');
+      return;
     }
+
+    navigate('/events');
   };
 
   return (
@@ -62,7 +45,13 @@ function App() {
 
       {/* Main app layout area */}
       <main className="main-content">
-        {renderPage()}
+        <Routes>
+          <Route index element={<Navigate to="/events" replace />} />
+          <Route path="events" element={<EventsPage />} />
+          <Route path="events/:id" element={<EventDetailsPage showToast={showToast} />} />
+          <Route path="my-bookings" element={<MyBookingsPage showToast={showToast} />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
       </main>
 
       {/* Elegant student assignment footer */}
