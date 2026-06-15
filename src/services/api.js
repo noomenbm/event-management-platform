@@ -50,5 +50,18 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify({ status: 'cancelled' }),
     });
+  },
+
+  // GET /users/:id
+  getUser: async (id = 'user1') => {
+    return request(`/users/${id}`);
+  },
+
+  // PATCH /users/:id
+  updateUser: async (id, updates) => {
+    return request(`/users/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
   }
 };

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
 export const Navbar = () => {
+  const { currentUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -93,7 +95,7 @@ export const Navbar = () => {
             {/* Mock User Badge */}
             <div className="user-badge" aria-label="Current user">
               <div className="user-status-dot"></div>
-              <span>John Doe</span>
+              <span>{currentUser.name}</span>
             </div>
           </div>
         </nav>
