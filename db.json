@@ -114,5 +114,16 @@
       "bookingDate": "2026-05-20",
       "referenceNumber": "BK123456"
     }
+  ],
+  "users": [
+    {
+      "id": "user1",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "preferences": {
+        "theme": "light"
+      },
+      "favoriteEvents": ["2"]
+    }
   ]
 }

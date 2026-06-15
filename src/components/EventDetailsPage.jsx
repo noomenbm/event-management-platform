@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { bookingReducer, initialBookingState } from '../reducers/bookingReducer';
 
@@ -16,6 +17,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonePattern = /^[0-9+\-()\s]{7,15}$/;
 
 export const EventDetailsPage = ({ eventId, onBack, onViewBookings, showToast }) => {
+  const { userId } = useAuth();
   const [event, setEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -116,7 +118,7 @@ export const EventDetailsPage = ({ eventId, onBack, onViewBookings, showToast })
       const referenceNumber = `BK${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
       const booking = await api.createBooking({
         id: crypto.randomUUID(),
-        userId: 'user1',
+        userId,
         eventId: event.id,
         eventTitle: event.title,
         eventDate: event.date,

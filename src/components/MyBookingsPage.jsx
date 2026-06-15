@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Modal } from './Modal';
 
@@ -12,6 +13,7 @@ const formatDate = (dateStr) => {
 };
 
 export const MyBookingsPage = ({ showToast }) => {
+  const { userId } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [bookingFilter, setBookingFilter] = useState('upcoming');
   const [bookingToCancel, setBookingToCancel] = useState(null);
@@ -19,25 +21,25 @@ export const MyBookingsPage = ({ showToast }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const data = await api.getBookings('user1');
+      const data = await api.getBookings(userId);
       setBookings(data);
     } catch (err) {
       setError(err.message || 'Something went wrong while loading bookings.');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
-    // Fetching bookings on mount is required for GET /bookings?userId=user1.
+    // Fetch bookings for the simulated authenticated user.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchBookings();
-  }, []);
+  }, [fetchBookings]);
 
   const filteredBookings = useMemo(() => {
     const today = new Date();
