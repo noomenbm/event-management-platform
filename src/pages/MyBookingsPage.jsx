@@ -1,5 +1,8 @@
+import { useOutletContext } from 'react-router-dom';
 import { MyBookingsPage as MyBookingsPageContent } from '../components/MyBookingsPage';
 
-export const MyBookingsPage = ({ showToast }) => (
-  <MyBookingsPageContent showToast={showToast} />
-);
+export const MyBookingsPage = () => {
+  const { showToast } = useOutletContext();
+
+  return <MyBookingsPageContent showToast={showToast} />;
+};

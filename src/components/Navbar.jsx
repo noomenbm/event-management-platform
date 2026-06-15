@@ -1,12 +1,12 @@
 import { useState } from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 
-export const Navbar = ({ currentPage, setCurrentPage }) => {
+export const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const handleNavClick = (page) => {
-    setCurrentPage(page);
+  const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
 
@@ -14,9 +14,9 @@ export const Navbar = ({ currentPage, setCurrentPage }) => {
     <header className="app-header">
       <div className="container header-container">
         {/* Branding Logo */}
-        <button type="button" className="logo-link" onClick={() => handleNavClick('events')} aria-label="Go to Events">
+        <Link className="logo-link" to="/events" onClick={closeMobileMenu} aria-label="Go to Events">
           <span>Vibe<span className="logo-accent">Vent</span></span>
-        </button>
+        </Link>
 
         {/* Mobile Toggle Button */}
         <button
@@ -42,20 +42,22 @@ export const Navbar = ({ currentPage, setCurrentPage }) => {
         <nav className={`navbar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
           <ul className="nav-links">
             <li>
-              <button
-                className={`nav-button ${currentPage === 'events' || currentPage === 'event-details' ? 'active' : ''}`}
-                onClick={() => handleNavClick('events')}
+              <NavLink
+                className={({ isActive }) => `nav-button ${isActive ? 'active' : ''}`}
+                to="/events"
+                onClick={closeMobileMenu}
               >
                 Events
-              </button>
+              </NavLink>
             </li>
             <li>
-              <button
-                className={`nav-button ${currentPage === 'bookings' ? 'active' : ''}`}
-                onClick={() => handleNavClick('bookings')}
+              <NavLink
+                className={({ isActive }) => `nav-button ${isActive ? 'active' : ''}`}
+                to="/my-bookings"
+                onClick={closeMobileMenu}
               >
                 My Bookings
-              </button>
+              </NavLink>
             </li>
           </ul>
 
