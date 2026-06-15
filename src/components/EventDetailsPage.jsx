@@ -1,7 +1,5 @@
-import { useEffect, useReducer, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useEffect, useState } from 'react';
 import { api } from '../services/api';
-import { bookingReducer, initialBookingState } from '../reducers/bookingReducer';
 
 const formatDate = (dateStr) => {
   const date = new Date(`${dateStr}T00:00:00`);
@@ -13,16 +11,10 @@ const formatDate = (dateStr) => {
   });
 };
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phonePattern = /^[0-9+\-()\s]{7,15}$/;
-
-export const EventDetailsPage = ({ eventId, onBack, onViewBookings, showToast }) => {
-  const { userId } = useAuth();
+export const EventDetailsPage = ({ eventId, onBack, onBook }) => {
   const [event, setEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [bookingState, dispatch] = useReducer(bookingReducer, initialBookingState);
 
   const fetchEventDetails = async () => {
     setIsLoading(true);
@@ -44,114 +36,6 @@ export const EventDetailsPage = ({ eventId, onBack, onViewBookings, showToast })
     fetchEventDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId]);
-
-  const getTicketQuantity = (ticketId) => bookingState.quantities[ticketId] || 0;
-
-  const handleQuantityChange = (ticket, changeAmount) => {
-    const currentQuantity = getTicketQuantity(ticket.id);
-    const nextQuantity = Math.max(0, Math.min(ticket.available, currentQuantity + changeAmount));
-
-    dispatch({
-      type: 'SET_TICKET_QUANTITY',
-      ticketId: ticket.id,
-      quantity: nextQuantity,
-    });
-  };
-
-  const selectedTicketCount = event
-    ? event.ticketTypes.reduce((total, ticket) => total + getTicketQuantity(ticket.id), 0)
-    : 0;
-
-  const totalPrice = event
-    ? event.ticketTypes.reduce((total, ticket) => total + getTicketQuantity(ticket.id) * ticket.price, 0)
-    : 0;
-
-  const selectedTickets = event
-    ? event.ticketTypes
-      .map((ticket) => ({
-        ...ticket,
-        quantity: getTicketQuantity(ticket.id),
-      }))
-      .filter((ticket) => ticket.quantity > 0)
-    : [];
-
-  const handleAttendeeChange = (index, field, value) => {
-    dispatch({
-      type: 'UPDATE_ATTENDEE',
-      index,
-      field,
-      value,
-    });
-  };
-
-  const validateAttendees = () => {
-    const errors = {};
-
-    bookingState.attendees.forEach((attendee, index) => {
-      if (!attendee.name.trim()) {
-        errors[`attendee-${index}-name`] = 'Name is required.';
-      }
-
-      if (!emailPattern.test(attendee.email)) {
-        errors[`attendee-${index}-email`] = 'Enter a valid email address.';
-      }
-
-      if (!phonePattern.test(attendee.phone)) {
-        errors[`attendee-${index}-phone`] = 'Enter a valid phone number.';
-      }
-    });
-
-    dispatch({ type: 'SET_ERRORS', errors });
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleAttendeeContinue = () => {
-    if (validateAttendees()) {
-      dispatch({ type: 'SET_STEP', step: 3 });
-    }
-  };
-
-  const handleConfirmBooking = async () => {
-    setIsSubmitting(true);
-
-    try {
-      const referenceNumber = `BK${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
-      const booking = await api.createBooking({
-        id: crypto.randomUUID(),
-        userId,
-        eventId: event.id,
-        eventTitle: event.title,
-        eventDate: event.date,
-        tickets: selectedTickets.map((ticket) => ({
-          type: ticket.name,
-          quantity: ticket.quantity,
-          price: ticket.price,
-        })),
-        attendees: bookingState.attendees,
-        totalAmount: totalPrice,
-        status: 'confirmed',
-        bookingDate: new Date().toISOString().slice(0, 10),
-        referenceNumber,
-      });
-
-      dispatch({ type: 'SET_BOOKING', booking });
-      showToast('Booking created successfully.');
-    } catch (err) {
-      dispatch({
-        type: 'SET_ERRORS',
-        errors: { submit: err.message || 'Unable to create booking. Please try again.' },
-      });
-      showToast('Unable to create booking.', 'error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const getPanelTitle = () => {
-    if (bookingState.step === 1) return 'Select Tickets';
-    if (bookingState.step === 2) return 'Attendee Details';
-    return 'Review Booking';
-  };
 
   if (isLoading) {
     return (
@@ -215,168 +99,31 @@ export const EventDetailsPage = ({ eventId, onBack, onViewBookings, showToast })
                 <dd>{event.organizerName}</dd>
               </div>
             </dl>
+
+            <div className="booking-action-row">
+              <button className="primary-button" type="button" onClick={onBook}>
+                Book Now
+              </button>
+            </div>
           </div>
         </article>
 
-        <aside className="ticket-panel" aria-labelledby="tickets-title">
-          <p className="step-label">Step {bookingState.step} of 3</p>
-          <h2 id="tickets-title">{getPanelTitle()}</h2>
-
-          {bookingState.step === 1 && (
-            <>
-              <div className="ticket-type-list">
-                {event.ticketTypes.map((ticket) => (
-                  <div className="ticket-type-row" key={ticket.id}>
-                    <div>
-                      <h3>{ticket.name}</h3>
-                      <p>{ticket.available} available</p>
-                    </div>
-                    <strong>{ticket.price === 0 ? 'Free' : `$${ticket.price}`}</strong>
-                    <div className="quantity-stepper" aria-label={`${ticket.name} quantity`}>
-                      <button
-                        type="button"
-                        onClick={() => handleQuantityChange(ticket, -1)}
-                        disabled={getTicketQuantity(ticket.id) === 0}
-                      >
-                        -
-                      </button>
-                      <span>{getTicketQuantity(ticket.id)}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleQuantityChange(ticket, 1)}
-                        disabled={getTicketQuantity(ticket.id) === ticket.available}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="ticket-total-row">
-                <span>{selectedTicketCount} ticket(s)</span>
-                <strong>Total: ${totalPrice}</strong>
-              </div>
-
-              <button
-                className="primary-button full-width"
-                type="button"
-                disabled={selectedTicketCount === 0}
-                onClick={() => dispatch({ type: 'SET_STEP', step: 2 })}
-              >
-                Continue
-              </button>
-            </>
-          )}
-
-          {bookingState.step === 2 && (
-            <>
-              <div className="attendee-list">
-                {bookingState.attendees.map((attendee, index) => (
-                  <fieldset className="attendee-form" key={`attendee-${index + 1}`}>
-                    <legend>Attendee {index + 1}</legend>
-                    <label>
-                      Name
-                      <input
-                        type="text"
-                        value={attendee.name}
-                        onChange={(e) => handleAttendeeChange(index, 'name', e.target.value)}
-                        aria-invalid={Boolean(bookingState.errors[`attendee-${index}-name`])}
-                      />
-                      {bookingState.errors[`attendee-${index}-name`] && (
-                        <span className="input-error">{bookingState.errors[`attendee-${index}-name`]}</span>
-                      )}
-                    </label>
-                    <label>
-                      Email
-                      <input
-                        type="email"
-                        value={attendee.email}
-                        onChange={(e) => handleAttendeeChange(index, 'email', e.target.value)}
-                        aria-invalid={Boolean(bookingState.errors[`attendee-${index}-email`])}
-                      />
-                      {bookingState.errors[`attendee-${index}-email`] && (
-                        <span className="input-error">{bookingState.errors[`attendee-${index}-email`]}</span>
-                      )}
-                    </label>
-                    <label>
-                      Phone
-                      <input
-                        type="tel"
-                        value={attendee.phone}
-                        onChange={(e) => handleAttendeeChange(index, 'phone', e.target.value)}
-                        aria-invalid={Boolean(bookingState.errors[`attendee-${index}-phone`])}
-                      />
-                      {bookingState.errors[`attendee-${index}-phone`] && (
-                        <span className="input-error">{bookingState.errors[`attendee-${index}-phone`]}</span>
-                      )}
-                    </label>
-                  </fieldset>
-                ))}
-              </div>
-
-              <div className="ticket-total-row">
-                <span>{selectedTicketCount} ticket(s)</span>
-                <strong>Total: ${totalPrice}</strong>
-              </div>
-
-              <div className="booking-action-row">
-                <button className="secondary-button" type="button" onClick={() => dispatch({ type: 'SET_STEP', step: 1 })}>
-                  Back
-                </button>
-                <button className="primary-button" type="button" onClick={handleAttendeeContinue}>
-                  Continue
-                </button>
-              </div>
-            </>
-          )}
-
-          {bookingState.step === 3 && (
-            <>
-              {bookingState.booking ? (
-                <div className="booking-success">
-                  <h3>Booking Confirmed</h3>
-                  <p>Your reference number is <strong>{bookingState.booking.referenceNumber}</strong>.</p>
-                  <button className="primary-button full-width" type="button" onClick={onViewBookings}>
-                    View My Bookings
-                  </button>
+        <aside className="ticket-panel" aria-labelledby="ticket-types-title">
+          <h2 id="ticket-types-title">Ticket Types</h2>
+          <div className="ticket-type-list">
+            {event.ticketTypes.map((ticket) => (
+              <div className="ticket-type-row" key={ticket.id}>
+                <div>
+                  <h3>{ticket.name}</h3>
+                  <p>{ticket.available} available</p>
                 </div>
-              ) : (
-                <>
-                  <div className="booking-summary">
-                    <h3>{event.title}</h3>
-                    <p>{formatDate(event.date)} at {event.time}</p>
-                    <div className="summary-list">
-                      {selectedTickets.map((ticket) => (
-                        <div key={ticket.id}>
-                          <span>{ticket.name} x {ticket.quantity}</span>
-                          <strong>${ticket.price * ticket.quantity}</strong>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="ticket-total-row">
-                    <span>{selectedTicketCount} ticket(s)</span>
-                    <strong>Total: ${totalPrice}</strong>
-                  </div>
-
-                  {bookingState.errors.submit && (
-                    <p className="input-error">{bookingState.errors.submit}</p>
-                  )}
-
-                  <div className="booking-action-row">
-                    <button className="secondary-button" type="button" onClick={() => dispatch({ type: 'SET_STEP', step: 2 })}>
-                      Back
-                    </button>
-                    <button className="primary-button" type="button" onClick={handleConfirmBooking} disabled={isSubmitting}>
-                      {isSubmitting ? 'Saving...' : 'Confirm'}
-                    </button>
-                  </div>
-                </>
-              )}
-            </>
-          )}
+                <strong>{ticket.price === 0 ? 'Free' : `$${ticket.price}`}</strong>
+              </div>
+            ))}
+          </div>
+          <button className="primary-button full-width" type="button" onClick={onBook}>
+            Book Now
+          </button>
         </aside>
       </section>
     </div>
