@@ -1,6 +1,7 @@
-import { useEffect, useReducer, useState } from 'react';
+import { useReducer, useState } from 'react';
 import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useEventQuery } from '../queries/events';
 import { bookingReducer, initialBookingState } from '../reducers/bookingReducer';
 import { api } from '../services/api';
 
@@ -22,32 +23,14 @@ export const BookEventPage = () => {
   const navigate = useNavigate();
   const { showToast } = useOutletContext();
   const { userId } = useAuth();
-  const [event, setEvent] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
   const [bookingState, dispatch] = useReducer(bookingReducer, initialBookingState);
-
-  const fetchEventDetails = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const data = await api.getEventById(eventId);
-      setEvent(data);
-    } catch (err) {
-      setError(err.message || 'Something went wrong while loading event details.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    // Fetching event details on mount is required for GET /events/:id.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchEventDetails();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventId]);
+  const {
+    data: event,
+    error,
+    isLoading,
+    refetch,
+  } = useEventQuery(eventId);
 
   const getTicketQuantity = (ticketId) => bookingState.quantities[ticketId] || 0;
 
@@ -178,8 +161,8 @@ export const BookEventPage = () => {
       <div className="container">
         <div className="error-state">
           <div className="error-state-title">Booking Event Failed</div>
-          <p>{error}</p>
-          <button className="retry-button" type="button" onClick={fetchEventDetails}>Retry</button>
+          <p>{error.message || 'Something went wrong while loading event details.'}</p>
+          <button className="retry-button" type="button" onClick={() => refetch()}>Retry</button>
           <button className="secondary-button details-secondary-action" type="button" onClick={() => navigate('/events')}>Back to Events</button>
         </div>
       </div>

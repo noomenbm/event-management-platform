@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { api } from '../services/api';
+import { useEventsQuery } from '../queries/events';
 import { EventCard } from './EventCard';
 
 export const EventsPage = ({ onSelectEvent }) => {
-  const [events, setEvents] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const {
+    data: events = [],
+    error,
+    isLoading,
+    refetch,
+  } = useEventsQuery();
 
   // Search, Category, and Favorites states
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,25 +23,6 @@ export const EventsPage = ({ onSelectEvent }) => {
 
   // useRef to autofocus the search input
   const searchInputRef = useRef(null);
-
-  const fetchEvents = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await api.getEvents();
-      setEvents(data);
-    } catch (err) {
-      setError(err.message || 'Something went wrong while loading events.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    // Fetching data on mount is required for this assignment's API interaction.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchEvents();
-  }, []);
 
   // Autofocus the search input on mount
   useEffect(() => {
@@ -192,8 +176,8 @@ export const EventsPage = ({ onSelectEvent }) => {
       <div className="container" style={{ padding: '60px 0' }}>
         <div className="error-state">
           <div className="error-state-title">Data Fetching Failed</div>
-          <p>{error}</p>
-          <button className="retry-button" onClick={fetchEvents}>Retry Fetching</button>
+          <p>{error.message || 'Something went wrong while loading events.'}</p>
+          <button className="retry-button" onClick={() => refetch()}>Retry Fetching</button>
         </div>
       </div>
     );

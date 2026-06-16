@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { api } from '../services/api';
+import { useEventQuery } from '../queries/events';
 
 const formatDate = (dateStr) => {
   const date = new Date(`${dateStr}T00:00:00`);
@@ -12,30 +11,12 @@ const formatDate = (dateStr) => {
 };
 
 export const EventDetailsPage = ({ eventId, onBack, onBook }) => {
-  const [event, setEvent] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const fetchEventDetails = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const data = await api.getEventById(eventId);
-      setEvent(data);
-    } catch (err) {
-      setError(err.message || 'Something went wrong while loading event details.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    // Fetching event details on mount is required for GET /events/:id.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchEventDetails();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventId]);
+  const {
+    data: event,
+    error,
+    isLoading,
+    refetch,
+  } = useEventQuery(eventId);
 
   if (isLoading) {
     return (
@@ -58,8 +39,8 @@ export const EventDetailsPage = ({ eventId, onBack, onBook }) => {
       <div className="container">
         <div className="error-state">
           <div className="error-state-title">Event Details Failed</div>
-          <p>{error}</p>
-          <button className="retry-button" type="button" onClick={fetchEventDetails}>Retry</button>
+          <p>{error.message || 'Something went wrong while loading event details.'}</p>
+          <button className="retry-button" type="button" onClick={() => refetch()}>Retry</button>
           <button className="secondary-button details-secondary-action" type="button" onClick={onBack}>Back to Events</button>
         </div>
       </div>
