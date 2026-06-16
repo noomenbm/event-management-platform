@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { api } from '../services/api';
+import { useBookingsQuery, useCancelBookingMutation } from '../queries/bookings';
 import { Modal } from './Modal';
 
 const formatDate = (dateStr) => {
@@ -13,33 +13,17 @@ const formatDate = (dateStr) => {
 };
 
 export const MyBookingsPage = ({ showToast }) => {
-  const { userId } = useAuth();
-  const [bookings, setBookings] = useState([]);
+  const { currentUser } = useAuth();
+  const userId = currentUser.id;
   const [bookingFilter, setBookingFilter] = useState('upcoming');
   const [bookingToCancel, setBookingToCancel] = useState(null);
-  const [isCancelling, setIsCancelling] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const fetchBookings = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const data = await api.getBookings(userId);
-      setBookings(data);
-    } catch (err) {
-      setError(err.message || 'Something went wrong while loading bookings.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId]);
-
-  useEffect(() => {
-    // Fetch bookings for the simulated authenticated user.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchBookings();
-  }, [fetchBookings]);
+  const {
+    data: bookings = [],
+    error,
+    isLoading,
+    refetch,
+  } = useBookingsQuery(userId);
+  const cancelBookingMutation = useCancelBookingMutation(userId);
 
   const filteredBookings = useMemo(() => {
     const today = new Date();
@@ -52,7 +36,11 @@ export const MyBookingsPage = ({ showToast }) => {
         return eventDate >= today && booking.status !== 'cancelled';
       }
 
-      return eventDate < today || booking.status === 'cancelled';
+      if (bookingFilter === 'past') {
+        return eventDate < today && booking.status !== 'cancelled';
+      }
+
+      return booking.status === 'cancelled';
     });
   }, [bookings, bookingFilter]);
 
@@ -67,24 +55,14 @@ export const MyBookingsPage = ({ showToast }) => {
   const handleCancelBooking = async () => {
     if (!bookingToCancel) return;
 
-    setIsCancelling(true);
-
     try {
-      const cancelledBooking = await api.cancelBooking(bookingToCancel.id);
-      setBookings((currentBookings) =>
-        currentBookings.map((booking) =>
-          booking.id === cancelledBooking.id ? cancelledBooking : booking
-        )
-      );
+      await cancelBookingMutation.mutateAsync(bookingToCancel.id);
       closeCancelModal();
-      setBookingFilter('past');
+      setBookingFilter('cancelled');
       showToast('Booking cancelled successfully.');
-    } catch (err) {
-      setError(err.message || 'Unable to cancel booking.');
+    } catch {
       closeCancelModal();
       showToast('Unable to cancel booking.', 'error');
-    } finally {
-      setIsCancelling(false);
     }
   };
 
@@ -111,6 +89,13 @@ export const MyBookingsPage = ({ showToast }) => {
           >
             Past
           </button>
+          <button
+            className={bookingFilter === 'cancelled' ? 'active' : ''}
+            type="button"
+            onClick={() => setBookingFilter('cancelled')}
+          >
+            Cancelled
+          </button>
         </div>
       )}
 
@@ -132,8 +117,8 @@ export const MyBookingsPage = ({ showToast }) => {
       {error && (
         <div className="error-state">
           <div className="error-state-title">Bookings Failed</div>
-          <p>{error}</p>
-          <button className="retry-button" type="button" onClick={fetchBookings}>Retry</button>
+          <p>{error.message || 'Something went wrong while loading bookings.'}</p>
+          <button className="retry-button" type="button" onClick={() => refetch()}>Retry</button>
         </div>
       )}
 
@@ -155,6 +140,10 @@ export const MyBookingsPage = ({ showToast }) => {
         <div className="booking-list">
           {filteredBookings.map((booking) => {
             const ticketCount = booking.tickets.reduce((total, ticket) => total + ticket.quantity, 0);
+            const eventDate = new Date(`${booking.eventDate}T00:00:00`);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const canCancelBooking = eventDate >= today && booking.status === 'confirmed';
 
             return (
               <article className="booking-card" key={booking.id}>
@@ -166,7 +155,7 @@ export const MyBookingsPage = ({ showToast }) => {
                 </div>
                 <div className="booking-card-side">
                   <strong>${booking.totalAmount}</strong>
-                  {bookingFilter === 'upcoming' && booking.status === 'confirmed' && (
+                  {canCancelBooking && (
                     <button className="danger-button" type="button" onClick={() => openCancelModal(booking)}>
                       Cancel
                     </button>
@@ -187,14 +176,14 @@ export const MyBookingsPage = ({ showToast }) => {
             <button className="secondary-button" type="button" onClick={closeCancelModal}>
               Keep Booking
             </button>
-            <button className="danger-button" type="button" onClick={handleCancelBooking} disabled={isCancelling}>
-              {isCancelling ? 'Cancelling...' : 'Confirm Cancel'}
+            <button className="danger-button" type="button" onClick={handleCancelBooking} disabled={cancelBookingMutation.isPending}>
+              {cancelBookingMutation.isPending ? 'Cancelling...' : 'Confirm Cancel'}
             </button>
           </>
         )}
       >
         <p>
-          This will cancel your booking for {bookingToCancel?.eventTitle}. You can review it in Past bookings after it is cancelled.
+          This will cancel your booking for {bookingToCancel?.eventTitle}. You can review it in Cancelled bookings after it is cancelled.
         </p>
       </Modal>
     </div>

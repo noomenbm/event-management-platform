@@ -1,6 +1,8 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useReducer, useState } from 'react';
 import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { bookingKeys } from '../queries/bookings';
 import { useEventQuery } from '../queries/events';
 import { bookingReducer, initialBookingState } from '../reducers/bookingReducer';
 import { api } from '../services/api';
@@ -22,7 +24,9 @@ export const BookEventPage = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const { showToast } = useOutletContext();
-  const { userId } = useAuth();
+  const { currentUser } = useAuth();
+  const userId = currentUser.id;
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingState, dispatch] = useReducer(bookingReducer, initialBookingState);
   const {
@@ -122,6 +126,7 @@ export const BookEventPage = () => {
       });
 
       dispatch({ type: 'SET_BOOKING', booking });
+      queryClient.invalidateQueries({ queryKey: bookingKeys.list(userId) });
       showToast('Booking created successfully.');
     } catch (err) {
       dispatch({
