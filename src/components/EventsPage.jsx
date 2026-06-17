@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { useEventsQuery } from '../queries/events';
+import { useToggleFavoriteMutation } from '../queries/users';
 import { EventCard } from './EventCard';
 
 export const EventsPage = ({ onSelectEvent }) => {
+  const { currentUser, updateCurrentUser } = useAuth();
   const {
     data: events = [],
     error,
@@ -16,10 +19,8 @@ export const EventsPage = ({ onSelectEvent }) => {
   const [selectedDateRange, setSelectedDateRange] = useState('All');
   const [selectedPriceTier, setSelectedPriceTier] = useState('All');
   const [selectedSort, setSelectedSort] = useState('date-asc');
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem('favorites_db');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const favoriteEvents = currentUser.favoriteEvents || [];
+  const toggleFavoriteMutation = useToggleFavoriteMutation({ currentUser, updateCurrentUser });
 
   // useRef to autofocus the search input
   const searchInputRef = useRef(null);
@@ -31,17 +32,12 @@ export const EventsPage = ({ onSelectEvent }) => {
     }
   }, [isLoading]);
 
-  // Persist favorites in localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('favorites_db', JSON.stringify(favorites));
-  }, [favorites]);
-
   const toggleFavorite = (eventId) => {
-    setFavorites(prev => 
-      prev.includes(eventId) 
-        ? prev.filter(id => id !== eventId) 
-        : [...prev, eventId]
-    );
+    const nextFavoriteEvents = favoriteEvents.includes(eventId)
+      ? favoriteEvents.filter((id) => id !== eventId)
+      : [...favoriteEvents, eventId];
+
+    toggleFavoriteMutation.mutate(nextFavoriteEvents);
   };
 
   // Perform search, category, date, price filtering, and sorting dynamically
@@ -303,7 +299,7 @@ export const EventsPage = ({ onSelectEvent }) => {
               key={event.id}
               event={event}
               onSelect={onSelectEvent}
-              isFavorite={favorites.includes(event.id)}
+              isFavorite={favoriteEvents.includes(event.id)}
               onToggleFavorite={toggleFavorite}
             />
           ))}
