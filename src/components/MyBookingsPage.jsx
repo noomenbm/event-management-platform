@@ -55,13 +55,15 @@ export const MyBookingsPage = ({ showToast }) => {
   const handleCancelBooking = async () => {
     if (!bookingToCancel) return;
 
+    const bookingId = bookingToCancel.id;
+    closeCancelModal();
+    setBookingFilter('cancelled');
+
     try {
-      await cancelBookingMutation.mutateAsync(bookingToCancel.id);
-      closeCancelModal();
-      setBookingFilter('cancelled');
+      await cancelBookingMutation.mutateAsync(bookingId);
       showToast('Booking cancelled successfully.');
     } catch {
-      closeCancelModal();
+      setBookingFilter('upcoming');
       showToast('Unable to cancel booking.', 'error');
     }
   };
