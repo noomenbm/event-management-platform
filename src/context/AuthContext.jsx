@@ -2,8 +2,10 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { api } from '../services/api';
 
+export const SIMULATED_USER_ID = 'user1';
+
 const DEFAULT_USER = {
-  id: 'user1',
+  id: SIMULATED_USER_ID,
   name: 'John Doe',
   email: 'john@example.com',
   preferences: {
