@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useDeferredValue, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useEventsQuery } from '../queries/events';
 import { useToggleFavoriteMutation } from '../queries/users';
@@ -19,6 +19,7 @@ export const EventsPage = ({ onSelectEvent }) => {
   const [selectedDateRange, setSelectedDateRange] = useState('All');
   const [selectedPriceTier, setSelectedPriceTier] = useState('All');
   const [selectedSort, setSelectedSort] = useState('date-asc');
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const favoriteEvents = currentUser.favoriteEvents || [];
   const toggleFavoriteMutation = useToggleFavoriteMutation({ currentUser, updateCurrentUser });
 
@@ -90,9 +91,9 @@ export const EventsPage = ({ onSelectEvent }) => {
     };
 
     // 1. Filter by search query
-    if (searchQuery.trim() !== '') {
+    if (deferredSearchQuery.trim() !== '') {
       result = result.filter(e => 
-        e.title.toLowerCase().includes(searchQuery.toLowerCase())
+        e.title.toLowerCase().includes(deferredSearchQuery.toLowerCase())
       );
     }
 
@@ -129,7 +130,7 @@ export const EventsPage = ({ onSelectEvent }) => {
     });
 
     return result;
-  }, [events, searchQuery, selectedCategory, selectedDateRange, selectedPriceTier, selectedSort]);
+  }, [events, deferredSearchQuery, selectedCategory, selectedDateRange, selectedPriceTier, selectedSort]);
 
   const handleResetFilters = () => {
     setSearchQuery('');
