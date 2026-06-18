@@ -1,4 +1,4 @@
-import { useReducer } from 'react';
+import { useId, useReducer } from 'react';
 import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCreateBookingMutation } from '../queries/bookings';
@@ -19,6 +19,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonePattern = /^[0-9+\-()\s]{7,15}$/;
 
 export const BookEventPage = () => {
+  const attendeeFormId = useId();
   const { eventId } = useParams();
   const navigate = useNavigate();
   const { showToast } = useOutletContext();
@@ -250,40 +251,64 @@ export const BookEventPage = () => {
                 {bookingState.attendees.map((attendee, index) => (
                   <fieldset className="attendee-form" key={`attendee-${index + 1}`}>
                     <legend>Attendee {index + 1}</legend>
-                    <label>
+                    <label htmlFor={`${attendeeFormId}-attendee-${index}-name`}>
                       Name
                       <input
+                        id={`${attendeeFormId}-attendee-${index}-name`}
                         type="text"
                         value={attendee.name}
                         onChange={(e) => handleAttendeeChange(index, 'name', e.target.value)}
                         aria-invalid={Boolean(bookingState.errors[`attendee-${index}-name`])}
+                        aria-describedby={
+                          bookingState.errors[`attendee-${index}-name`]
+                            ? `${attendeeFormId}-attendee-${index}-name-error`
+                            : undefined
+                        }
                       />
                       {bookingState.errors[`attendee-${index}-name`] && (
-                        <span className="input-error">{bookingState.errors[`attendee-${index}-name`]}</span>
+                        <span className="input-error" id={`${attendeeFormId}-attendee-${index}-name-error`}>
+                          {bookingState.errors[`attendee-${index}-name`]}
+                        </span>
                       )}
                     </label>
-                    <label>
+                    <label htmlFor={`${attendeeFormId}-attendee-${index}-email`}>
                       Email
                       <input
+                        id={`${attendeeFormId}-attendee-${index}-email`}
                         type="email"
                         value={attendee.email}
                         onChange={(e) => handleAttendeeChange(index, 'email', e.target.value)}
                         aria-invalid={Boolean(bookingState.errors[`attendee-${index}-email`])}
+                        aria-describedby={
+                          bookingState.errors[`attendee-${index}-email`]
+                            ? `${attendeeFormId}-attendee-${index}-email-error`
+                            : undefined
+                        }
                       />
                       {bookingState.errors[`attendee-${index}-email`] && (
-                        <span className="input-error">{bookingState.errors[`attendee-${index}-email`]}</span>
+                        <span className="input-error" id={`${attendeeFormId}-attendee-${index}-email-error`}>
+                          {bookingState.errors[`attendee-${index}-email`]}
+                        </span>
                       )}
                     </label>
-                    <label>
+                    <label htmlFor={`${attendeeFormId}-attendee-${index}-phone`}>
                       Phone
                       <input
+                        id={`${attendeeFormId}-attendee-${index}-phone`}
                         type="tel"
                         value={attendee.phone}
                         onChange={(e) => handleAttendeeChange(index, 'phone', e.target.value)}
                         aria-invalid={Boolean(bookingState.errors[`attendee-${index}-phone`])}
+                        aria-describedby={
+                          bookingState.errors[`attendee-${index}-phone`]
+                            ? `${attendeeFormId}-attendee-${index}-phone-error`
+                            : undefined
+                        }
                       />
                       {bookingState.errors[`attendee-${index}-phone`] && (
-                        <span className="input-error">{bookingState.errors[`attendee-${index}-phone`]}</span>
+                        <span className="input-error" id={`${attendeeFormId}-attendee-${index}-phone-error`}>
+                          {bookingState.errors[`attendee-${index}-phone`]}
+                        </span>
                       )}
                     </label>
                   </fieldset>
