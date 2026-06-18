@@ -1,25 +1,12 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { RouterProvider } from 'react-router-dom';
 import './App.css';
-import { RootLayout } from './layouts/RootLayout';
-import { BookEventPage } from './pages/BookEventPage';
-import { EventDetailsPage } from './pages/EventDetailsPage';
-import { EventsPage } from './pages/EventsPage';
-import { MyBookingsPage } from './pages/MyBookingsPage';
-import { NotFoundPage } from './pages/NotFoundPage';
+import { queryClient } from './queries/queryClient';
+import { createAppRouter } from './router/router';
+
+const router = createAppRouter(queryClient);
 
 function App() {
-  return (
-    <Routes>
-      <Route element={<RootLayout />}>
-        <Route index element={<Navigate to="/events" replace />} />
-        <Route path="events" element={<EventsPage />} />
-        <Route path="events/:id" element={<EventDetailsPage />} />
-        <Route path="book/:eventId" element={<BookEventPage />} />
-        <Route path="my-bookings" element={<MyBookingsPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-    </Routes>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
