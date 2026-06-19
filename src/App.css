@@ -1119,6 +1119,66 @@
   margin-bottom: 8px;
 }
 
+.profile-layout {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.75fr);
+}
+
+.profile-panel {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+}
+
+.profile-panel h2 {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  margin-bottom: 18px;
+}
+
+.profile-list {
+  display: grid;
+  gap: 16px;
+}
+
+.profile-list div {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 14px;
+}
+
+.profile-list div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.profile-list dt,
+.profile-field {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.profile-list dd {
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.profile-field {
+  display: grid;
+  gap: 8px;
+}
+
+.profile-current-theme {
+  color: var(--text-secondary);
+  margin: 16px 0;
+}
+
 /* Footer */
 .app-footer {
   background-color: var(--bg-surface);
@@ -1154,6 +1214,7 @@
   .filters-grid,
   .events-grid,
   .related-events-grid,
+  .profile-layout,
   .details-layout,
   .details-loading {
     grid-template-columns: 1fr;

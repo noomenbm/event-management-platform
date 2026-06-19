@@ -1,6 +1,7 @@
 import { SIMULATED_USER_ID } from '../context/AuthContext';
 import { bookingKeys } from '../queries/bookings';
 import { eventKeys } from '../queries/events';
+import { userKeys } from '../queries/users';
 import { api } from '../services/api';
 
 const notFound = (message) => {
@@ -80,6 +81,16 @@ export const myBookingsLoader = (queryClient) => async () => {
     queryFn: () => api.getBookings(SIMULATED_USER_ID),
     staleTime: 1000 * 30,
     gcTime: 1000 * 60 * 5,
+  });
+
+  return null;
+};
+
+export const profileLoader = (queryClient) => async () => {
+  await queryClient.ensureQueryData({
+    queryKey: userKeys.detail(SIMULATED_USER_ID),
+    queryFn: () => api.getUser(SIMULATED_USER_ID),
+    staleTime: 1000 * 60 * 5,
   });
 
   return null;
