@@ -6,11 +6,13 @@ import { EventDetailsPage } from '../pages/EventDetailsPage';
 import { EventsPage } from '../pages/EventsPage';
 import { MyBookingsPage } from '../pages/MyBookingsPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
+import { ProfilePage } from '../pages/ProfilePage';
 import {
   bookingEventLoader,
   eventDetailsLoader,
   eventsLoader,
   myBookingsLoader,
+  profileLoader,
 } from './loaders';
 
 export const createAppRouter = (queryClient) => createBrowserRouter([
@@ -44,6 +46,12 @@ export const createAppRouter = (queryClient) => createBrowserRouter([
         path: 'my-bookings',
         element: <MyBookingsPage />,
         loader: myBookingsLoader(queryClient),
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: 'profile',
+        element: <ProfilePage />,
+        loader: profileLoader(queryClient),
         errorElement: <ErrorPage />,
       },
       {

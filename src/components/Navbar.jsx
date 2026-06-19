@@ -61,6 +61,15 @@ export const Navbar = () => {
                 My Bookings
               </NavLink>
             </li>
+            <li>
+              <NavLink
+                className={({ isActive }) => `nav-button ${isActive ? 'active' : ''}`}
+                to="/profile"
+                onClick={closeMobileMenu}
+              >
+                Profile
+              </NavLink>
+            </li>
           </ul>
 
           {/* Theme Switcher & Mock User Profile info */}
@@ -93,10 +102,10 @@ export const Navbar = () => {
             </button>
 
             {/* Mock User Badge */}
-            <div className="user-badge" aria-label="Current user">
+            <Link className="user-badge" to="/profile" onClick={closeMobileMenu} aria-label="Current user profile">
               <div className="user-status-dot"></div>
               <span>{currentUser.name}</span>
-            </div>
+            </Link>
           </div>
         </nav>
       </div>
