@@ -7,6 +7,28 @@ const notFound = (message) => {
   throw new Response(message, { status: 404, statusText: 'Not Found' });
 };
 
+const delay = (ms) => new Promise((resolve) => {
+  setTimeout(resolve, ms);
+});
+
+const loadRelatedEvents = async (queryClient, event) => {
+  await delay(900);
+
+  const events = await queryClient.ensureQueryData({
+    queryKey: eventKeys.list(),
+    queryFn: () => api.getEvents(),
+  });
+
+  return events
+    .filter((candidate) => (
+      candidate.id !== event.id && (
+        candidate.category === event.category ||
+        candidate.location === event.location
+      )
+    ))
+    .slice(0, 3);
+};
+
 export const eventsLoader = (queryClient) => async () => {
   await queryClient.ensureQueryData({
     queryKey: eventKeys.list(),
@@ -21,12 +43,18 @@ export const eventDetailsLoader = (queryClient) => async ({ params }) => {
     notFound('Event not found.');
   }
 
-  await queryClient.ensureQueryData({
-    queryKey: eventKeys.detail(params.id),
-    queryFn: () => api.getEventById(params.id),
-  });
+  try {
+    const event = await queryClient.ensureQueryData({
+      queryKey: eventKeys.detail(params.id),
+      queryFn: () => api.getEventById(params.id),
+    });
 
-  return null;
+    return {
+      relatedEvents: loadRelatedEvents(queryClient, event),
+    };
+  } catch {
+    notFound('Event not found.');
+  }
 };
 
 export const bookingEventLoader = (queryClient) => async ({ params }) => {
@@ -34,10 +62,14 @@ export const bookingEventLoader = (queryClient) => async ({ params }) => {
     notFound('Booking event not found.');
   }
 
-  await queryClient.ensureQueryData({
-    queryKey: eventKeys.detail(params.eventId),
-    queryFn: () => api.getEventById(params.eventId),
-  });
+  try {
+    await queryClient.ensureQueryData({
+      queryKey: eventKeys.detail(params.eventId),
+      queryFn: () => api.getEventById(params.eventId),
+    });
+  } catch {
+    notFound('Booking event not found.');
+  }
 
   return null;
 };

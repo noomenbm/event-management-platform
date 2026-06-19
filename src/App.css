@@ -1049,6 +1049,76 @@
   width: 8px;
 }
 
+.route-loading-bar {
+  background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+  height: 3px;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  right: 0;
+  top: 72px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: opacity 160ms ease, transform 450ms ease;
+  z-index: 99;
+}
+
+.route-loading-bar.visible {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.related-events-section {
+  margin-top: 28px;
+}
+
+.related-events-panel {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+}
+
+.related-events-panel h2 {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  margin-bottom: 16px;
+}
+
+.related-events-panel p {
+  color: var(--text-secondary);
+}
+
+.related-events-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.related-event-card {
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.related-event-card span {
+  color: var(--primary);
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.related-event-card h3 {
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
 /* Footer */
 .app-footer {
   background-color: var(--bg-surface);
@@ -1083,6 +1153,7 @@
 
   .filters-grid,
   .events-grid,
+  .related-events-grid,
   .details-layout,
   .details-loading {
     grid-template-columns: 1fr;

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigation } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { Toast } from '../components/Toast';
 
 export const RootLayout = () => {
+  const navigation = useNavigation();
   const [toast, setToast] = useState({ message: '', type: 'success' });
+  const isRouteLoading = navigation.state === 'loading';
 
   useEffect(() => {
     if (!toast.message) return undefined;
@@ -23,6 +25,10 @@ export const RootLayout = () => {
   return (
     <div className="app-container">
       <Navbar />
+      <div
+        className={`route-loading-bar ${isRouteLoading ? 'visible' : ''}`}
+        aria-hidden={!isRouteLoading}
+      />
 
       <main className="main-content">
         <Outlet context={{ showToast }} />
