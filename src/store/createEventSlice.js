@@ -7,7 +7,7 @@ const emptyTicketType = () => ({
   available: 1,
 });
 
-const initialState = {
+const createInitialState = () => ({
   step: 1,
   basicInfo: {
     title: '',
@@ -23,7 +23,24 @@ const initialState = {
   },
   ticketTypes: [emptyTicketType()],
   errors: {},
-};
+});
+
+const initialState = createInitialState();
+
+const sanitizeDraft = (draft) => ({
+  ...createInitialState(),
+  ...draft,
+  basicInfo: {
+    ...createInitialState().basicInfo,
+    ...draft.basicInfo,
+  },
+  schedule: {
+    ...createInitialState().schedule,
+    ...draft.schedule,
+  },
+  ticketTypes: draft.ticketTypes?.length ? draft.ticketTypes : [emptyTicketType()],
+  errors: {},
+});
 
 const validateBasicInfo = (basicInfo) => {
   const errors = {};
@@ -95,13 +112,15 @@ export const createEventSlice = createSlice({
     validateAllSteps: (state) => {
       state.errors = getCreateEventStepErrors(state, 3);
     },
-    resetCreateEvent: () => initialState,
+    loadCreateEventDraft: (_state, action) => sanitizeDraft(action.payload),
+    resetCreateEvent: () => createInitialState(),
   },
 });
 
 export const {
   addTicketType,
   goToStep,
+  loadCreateEventDraft,
   removeTicketType,
   resetCreateEvent,
   updateBasicInfo,
