@@ -13,7 +13,6 @@ export const EventsPage = ({ onSelectEvent }) => {
     refetch,
   } = useEventsQuery();
 
-  // Search, Category, and Favorites states
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedDateRange, setSelectedDateRange] = useState('All');
@@ -23,10 +22,8 @@ export const EventsPage = ({ onSelectEvent }) => {
   const favoriteEvents = currentUser.favoriteEvents || [];
   const toggleFavoriteMutation = useToggleFavoriteMutation({ currentUser, updateCurrentUser });
 
-  // useRef to autofocus the search input
   const searchInputRef = useRef(null);
 
-  // Autofocus the search input on mount
   useEffect(() => {
     if (searchInputRef.current) {
       searchInputRef.current.focus();
@@ -41,7 +38,6 @@ export const EventsPage = ({ onSelectEvent }) => {
     toggleFavoriteMutation.mutate(nextFavoriteEvents);
   };
 
-  // Perform search, category, date, price filtering, and sorting dynamically
   const filteredEvents = useMemo(() => {
     let result = [...events];
     const today = new Date();
@@ -90,25 +86,20 @@ export const EventsPage = ({ onSelectEvent }) => {
       return true;
     };
 
-    // 1. Filter by search query
     if (deferredSearchQuery.trim() !== '') {
       result = result.filter(e => 
         e.title.toLowerCase().includes(deferredSearchQuery.toLowerCase())
       );
     }
 
-    // 2. Filter by category
     if (selectedCategory !== 'All') {
       result = result.filter(e => e.category === selectedCategory);
     }
 
-    // 3. Filter by dynamic date range
     result = result.filter(e => isInSelectedDateRange(e.date));
 
-    // 4. Filter by pricing tier
     result = result.filter(e => isInSelectedPriceTier(e));
 
-    // 5. Sort by date or price
     result.sort((firstEvent, secondEvent) => {
       if (selectedSort === 'date-asc') {
         return new Date(`${firstEvent.date}T00:00:00`) - new Date(`${secondEvent.date}T00:00:00`);
@@ -170,7 +161,7 @@ export const EventsPage = ({ onSelectEvent }) => {
 
   if (error) {
     return (
-      <div className="container" style={{ padding: '60px 0' }}>
+      <div className="container error-page-spacing">
         <div className="error-state">
           <div className="error-state-title">Data Fetching Failed</div>
           <p>{error.message || 'Something went wrong while loading events.'}</p>
@@ -182,15 +173,12 @@ export const EventsPage = ({ onSelectEvent }) => {
 
   return (
     <div className="container">
-      {/* Page Title Header */}
       <div className="page-hero">
         <h1 className="page-title">Discover Amazing Events</h1>
         <p className="page-subtitle">Browse through available concerts, arts, sports, and tech events near you.</p>
       </div>
 
-      {/* Search and Filters Section */}
       <section className="search-filter-section" aria-label="Search and filter events">
-        {/* Title Search Input */}
         <div className="search-wrapper">
           <svg className="search-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
@@ -206,9 +194,8 @@ export const EventsPage = ({ onSelectEvent }) => {
           />
         </div>
 
-        {/* Filters Select Dropdown row */}
         <div className="filters-grid">
-          <div className="filter-group" style={{ gridColumn: 'span 1' }}>
+          <div className="filter-group">
             <label className="filter-label" htmlFor="cat-filter">Category</label>
             <select
               id="cat-filter"
@@ -224,7 +211,7 @@ export const EventsPage = ({ onSelectEvent }) => {
             </select>
           </div>
 
-          <div className="filter-group" style={{ gridColumn: 'span 1' }}>
+          <div className="filter-group">
             <label className="filter-label" htmlFor="date-filter">Date Range</label>
             <select
               id="date-filter"
@@ -239,7 +226,7 @@ export const EventsPage = ({ onSelectEvent }) => {
             </select>
           </div>
 
-          <div className="filter-group" style={{ gridColumn: 'span 1' }}>
+          <div className="filter-group">
             <label className="filter-label" htmlFor="price-filter">Price Range</label>
             <select
               id="price-filter"
@@ -254,7 +241,7 @@ export const EventsPage = ({ onSelectEvent }) => {
             </select>
           </div>
 
-          <div className="filter-group" style={{ gridColumn: 'span 1' }}>
+          <div className="filter-group">
             <label className="filter-label" htmlFor="sort-select">Sort By</label>
             <select
               id="sort-select"
@@ -270,7 +257,6 @@ export const EventsPage = ({ onSelectEvent }) => {
           </div>
         </div>
 
-        {/* Clear Filters Indicator */}
         {(searchQuery || selectedCategory !== 'All' || selectedDateRange !== 'All' || selectedPriceTier !== 'All' || selectedSort !== 'date-asc') && (
           <div className="active-filters">
             <span className="result-count">
@@ -283,7 +269,6 @@ export const EventsPage = ({ onSelectEvent }) => {
         )}
       </section>
 
-      {/* Grid listing events */}
       {filteredEvents.length === 0 ? (
         <div className="empty-state">
           <span className="empty-state-icon" aria-hidden="true">Search</span>

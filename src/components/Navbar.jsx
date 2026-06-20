@@ -15,12 +15,10 @@ export const Navbar = () => {
   return (
     <header className="app-header">
       <div className="container header-container">
-        {/* Branding Logo */}
         <Link className="logo-link" to="/events" onClick={closeMobileMenu} aria-label="Go to Events">
           <span>Vibe<span className="logo-accent">Vent</span></span>
         </Link>
 
-        {/* Mobile Toggle Button */}
         <button
           className="mobile-nav-toggle"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -40,7 +38,6 @@ export const Navbar = () => {
           )}
         </button>
 
-        {/* Navigation Menu */}
         <nav className={`navbar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
           <ul className="nav-links">
             <li>
@@ -81,7 +78,6 @@ export const Navbar = () => {
             </li>
           </ul>
 
-          {/* Theme Switcher & Mock User Profile info */}
           <div className="navbar-actions">
             <button
               className="theme-toggle-btn"
@@ -90,12 +86,10 @@ export const Navbar = () => {
               aria-label="Toggle light/dark theme"
             >
               {theme === 'light' ? (
-                /* Moon Icon for Dark Mode toggle */
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                 </svg>
               ) : (
-                /* Sun Icon for Light Mode toggle */
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="5"></circle>
                   <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -110,7 +104,6 @@ export const Navbar = () => {
               )}
             </button>
 
-            {/* Mock User Badge */}
             <Link className="user-badge" to="/profile" onClick={closeMobileMenu} aria-label="Current user profile">
               <div className="user-status-dot"></div>
               <span>{currentUser.name}</span>

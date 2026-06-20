@@ -213,6 +213,10 @@
   transition: var(--transition-all);
 }
 
+.event-card-clickable {
+  cursor: pointer;
+}
+
 .event-card:hover {
   border-color: var(--border-hover);
   box-shadow: var(--shadow-md);
@@ -436,6 +440,11 @@
 
 .error-state-title {
   color: var(--error);
+}
+
+.error-page-spacing {
+  padding-bottom: 60px;
+  padding-top: 60px;
 }
 
 .details-layout {
