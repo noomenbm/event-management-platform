@@ -36,7 +36,7 @@ export const RootLayout = () => {
 
       <footer className="app-footer">
         <div className="container">
-          <p>Copyright 2026 VibeVent Platform. Developed for React Project Assignment-1.</p>
+          <p>Copyright 2026 VibeVent Platform. Developed for React Project Assignment-2.</p>
         </div>
       </footer>
 
