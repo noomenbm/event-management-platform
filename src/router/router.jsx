@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { RootLayout } from '../layouts/RootLayout';
 import { BookEventPage } from '../pages/BookEventPage';
+import { CreateEventPage } from '../pages/CreateEventPage';
 import { ErrorPage } from '../pages/ErrorPage';
 import { EventDetailsPage } from '../pages/EventDetailsPage';
 import { EventsPage } from '../pages/EventsPage';
@@ -52,6 +53,11 @@ export const createAppRouter = (queryClient) => createBrowserRouter([
         path: 'profile',
         element: <ProfilePage />,
         loader: profileLoader(queryClient),
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: 'create-event',
+        element: <CreateEventPage />,
         errorElement: <ErrorPage />,
       },
       {
