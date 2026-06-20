@@ -1327,6 +1327,10 @@
   margin-top: 8px;
 }
 
+.create-event-clear-draft {
+  margin-top: 18px;
+}
+
 /* Footer */
 .app-footer {
   background-color: var(--bg-surface);

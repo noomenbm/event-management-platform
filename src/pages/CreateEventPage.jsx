@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { useCreateEventMutation } from '../queries/events';
@@ -6,6 +6,7 @@ import {
   addTicketType,
   getCreateEventStepErrors,
   goToStep,
+  loadCreateEventDraft,
   removeTicketType,
   resetCreateEvent,
   selectCreateEvent,
@@ -17,6 +18,22 @@ import {
 } from '../store/createEventSlice';
 
 const categories = ['Technology', 'Music', 'Sports', 'Arts'];
+const DRAFT_STORAGE_KEY = 'create_event_draft';
+
+const hasDraftContent = (wizard) => (
+  wizard.basicInfo.title.trim() ||
+  wizard.basicInfo.description.trim() ||
+  wizard.basicInfo.image.trim() ||
+  wizard.schedule.date ||
+  wizard.schedule.time.trim() ||
+  wizard.schedule.location.trim() ||
+  wizard.schedule.venue.trim() ||
+  wizard.ticketTypes.some((ticket) => (
+    ticket.name.trim() ||
+    Number(ticket.price) > 0 ||
+    Number(ticket.available) !== 1
+  ))
+);
 
 const buildEventPayload = (wizard) => ({
   id: crypto.randomUUID(),
@@ -44,8 +61,36 @@ export const CreateEventPage = () => {
   const { showToast } = useOutletContext();
   const wizard = useSelector(selectCreateEvent);
   const createEventMutation = useCreateEventMutation();
+  const hasLoadedDraftRef = useRef(false);
 
   const currentStepErrors = getCreateEventStepErrors(wizard);
+
+  useEffect(() => {
+    if (hasLoadedDraftRef.current) return;
+
+    hasLoadedDraftRef.current = true;
+    const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
+
+    if (!savedDraft) return;
+
+    try {
+      dispatch(loadCreateEventDraft(JSON.parse(savedDraft)));
+      showToast('Create event draft restored.');
+    } catch {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    }
+  }, [dispatch, showToast]);
+
+  useEffect(() => {
+    if (!hasLoadedDraftRef.current) return;
+
+    if (hasDraftContent(wizard)) {
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(wizard));
+      return;
+    }
+
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+  }, [wizard]);
 
   const handleNext = () => {
     const errors = getCreateEventStepErrors(wizard);
@@ -64,6 +109,7 @@ export const CreateEventPage = () => {
 
     try {
       const createdEvent = await createEventMutation.mutateAsync(buildEventPayload(wizard));
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
       dispatch(resetCreateEvent());
       showToast('Event published successfully.');
       navigate(`/events/${createdEvent.id}`);
@@ -72,11 +118,20 @@ export const CreateEventPage = () => {
     }
   };
 
+  const handleClearDraft = () => {
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+    dispatch(resetCreateEvent());
+    showToast('Create event draft cleared.');
+  };
+
   return (
     <div className="container">
       <div className="page-hero">
         <h1 className="page-title">Create Event</h1>
         <p className="page-subtitle">Build and publish a new event listing.</p>
+        <button className="secondary-button create-event-clear-draft" type="button" onClick={handleClearDraft}>
+          Clear Draft
+        </button>
       </div>
 
       <section className="create-event-layout" aria-labelledby="create-event-step-title">
