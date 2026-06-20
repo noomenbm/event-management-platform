@@ -1,7 +1,6 @@
-import { useId, useReducer } from 'react';
-import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
+import { useEffect, useId, useReducer, useRef } from 'react';
+import { useFetcher, useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useCreateBookingMutation } from '../queries/bookings';
 import { useEventQuery } from '../queries/events';
 import { bookingReducer, initialBookingState } from '../reducers/bookingReducer';
 
@@ -26,13 +25,33 @@ export const BookEventPage = () => {
   const { currentUser } = useAuth();
   const userId = currentUser.id;
   const [bookingState, dispatch] = useReducer(bookingReducer, initialBookingState);
-  const createBookingMutation = useCreateBookingMutation(userId);
+  const bookingFetcher = useFetcher();
+  const lastActionResultRef = useRef(null);
   const {
     data: event,
     error,
     isLoading,
     refetch,
   } = useEventQuery(eventId);
+  const actionBooking = bookingFetcher.data?.booking;
+  const actionError = bookingFetcher.data?.error;
+  const confirmedBooking = actionBooking || bookingState.booking;
+  const isSubmittingBooking = bookingFetcher.state !== 'idle';
+
+  useEffect(() => {
+    if (!bookingFetcher.data || lastActionResultRef.current === bookingFetcher.data) return;
+
+    lastActionResultRef.current = bookingFetcher.data;
+
+    if (bookingFetcher.data.booking) {
+      showToast('Booking created successfully.');
+      return;
+    }
+
+    if (bookingFetcher.data.error) {
+      showToast('Unable to create booking.', 'error');
+    }
+  }, [bookingFetcher.data, showToast]);
 
   const getTicketQuantity = (ticketId) => bookingState.quantities[ticketId] || 0;
 
@@ -101,35 +120,31 @@ export const BookEventPage = () => {
   };
 
   const handleConfirmBooking = async () => {
-    try {
-      const referenceNumber = `BK${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
-      const booking = await createBookingMutation.mutateAsync({
-        id: crypto.randomUUID(),
-        userId,
-        eventId: event.id,
-        eventTitle: event.title,
-        eventDate: event.date,
-        tickets: selectedTickets.map((ticket) => ({
-          type: ticket.name,
-          quantity: ticket.quantity,
-          price: ticket.price,
-        })),
-        attendees: bookingState.attendees,
-        totalAmount: totalPrice,
-        status: 'confirmed',
-        bookingDate: new Date().toISOString().slice(0, 10),
-        referenceNumber,
-      });
+    const referenceNumber = `BK${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+    const booking = {
+      id: crypto.randomUUID(),
+      userId,
+      eventId: event.id,
+      eventTitle: event.title,
+      eventDate: event.date,
+      tickets: selectedTickets.map((ticket) => ({
+        type: ticket.name,
+        quantity: ticket.quantity,
+        price: ticket.price,
+      })),
+      attendees: bookingState.attendees,
+      totalAmount: totalPrice,
+      status: 'confirmed',
+      bookingDate: new Date().toISOString().slice(0, 10),
+      referenceNumber,
+    };
+    const formData = new FormData();
+    formData.set('payload', JSON.stringify(booking));
 
-      dispatch({ type: 'SET_BOOKING', booking });
-      showToast('Booking created successfully.');
-    } catch (err) {
-      dispatch({
-        type: 'SET_ERRORS',
-        errors: { submit: err.message || 'Unable to create booking. Please try again.' },
-      });
-      showToast('Unable to create booking.', 'error');
-    }
+    bookingFetcher.submit(formData, {
+      method: 'post',
+      action: `/book/${event.id}`,
+    });
   };
 
   const getPanelTitle = () => {
@@ -333,10 +348,10 @@ export const BookEventPage = () => {
 
           {bookingState.step === 3 && (
             <>
-              {bookingState.booking ? (
+              {confirmedBooking ? (
                 <div className="booking-success">
                   <h3>Booking Confirmed</h3>
-                  <p>Your reference number is <strong>{bookingState.booking.referenceNumber}</strong>.</p>
+                  <p>Your reference number is <strong>{confirmedBooking.referenceNumber}</strong>.</p>
                   <button className="primary-button full-width" type="button" onClick={() => navigate('/my-bookings')}>
                     View My Bookings
                   </button>
@@ -361,16 +376,16 @@ export const BookEventPage = () => {
                     <strong>Total: ${totalPrice}</strong>
                   </div>
 
-                  {bookingState.errors.submit && (
-                    <p className="input-error">{bookingState.errors.submit}</p>
+                  {(bookingState.errors.submit || actionError) && (
+                    <p className="input-error">{bookingState.errors.submit || actionError}</p>
                   )}
 
                   <div className="booking-action-row">
                     <button className="secondary-button" type="button" onClick={() => dispatch({ type: 'SET_STEP', step: 2 })}>
                       Back
                     </button>
-                    <button className="primary-button" type="button" onClick={handleConfirmBooking} disabled={createBookingMutation.isPending}>
-                      {createBookingMutation.isPending ? 'Saving...' : 'Confirm'}
+                    <button className="primary-button" type="button" onClick={handleConfirmBooking} disabled={isSubmittingBooking}>
+                      {isSubmittingBooking ? 'Saving...' : 'Confirm'}
                     </button>
                   </div>
                 </>

@@ -106,7 +106,7 @@ Previews the production build locally.
 
 ## Project 2 Concepts Covered
 
-- React Router data routes with loaders and `errorElement`
+- React Router data routes with loaders, actions, and `errorElement`
 - Deferred route data pattern with `Suspense` and `Await`
 - Route-level error page
 - Navigation loading indicator with `useNavigation`
@@ -120,7 +120,7 @@ Previews the production build locally.
 - Portals for modal and toast UI
 - `localStorage` persistence for theme and create-event drafts
 
-Note: form submissions use TanStack Query mutations rather than React Router actions.
+Booking and create-event submissions use React Router route actions. TanStack Query remains responsible for server-state caching, invalidation, and optimistic favorite/cancellation updates.
 
 ## API Endpoints Used
 
