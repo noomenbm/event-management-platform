@@ -8,6 +8,7 @@ import { EventsPage } from '../pages/EventsPage';
 import { MyBookingsPage } from '../pages/MyBookingsPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { ProfilePage } from '../pages/ProfilePage';
+import { bookingAction, createEventAction } from './actions';
 import {
   bookingEventLoader,
   eventDetailsLoader,
@@ -41,6 +42,7 @@ export const createAppRouter = (queryClient) => createBrowserRouter([
         path: 'book/:eventId',
         element: <BookEventPage />,
         loader: bookingEventLoader(queryClient),
+        action: bookingAction(queryClient),
         errorElement: <ErrorPage />,
       },
       {
@@ -58,6 +60,7 @@ export const createAppRouter = (queryClient) => createBrowserRouter([
       {
         path: 'create-event',
         element: <CreateEventPage />,
+        action: createEventAction(queryClient),
         errorElement: <ErrorPage />,
       },
       {

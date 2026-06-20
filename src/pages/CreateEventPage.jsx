@@ -1,7 +1,6 @@
 import { useEffect, useId, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useOutletContext } from 'react-router-dom';
-import { useCreateEventMutation } from '../queries/events';
+import { useFetcher, useNavigate, useOutletContext } from 'react-router-dom';
 import {
   addTicketType,
   getCreateEventStepErrors,
@@ -60,10 +59,30 @@ export const CreateEventPage = () => {
   const navigate = useNavigate();
   const { showToast } = useOutletContext();
   const wizard = useSelector(selectCreateEvent);
-  const createEventMutation = useCreateEventMutation();
+  const createEventFetcher = useFetcher();
   const hasLoadedDraftRef = useRef(false);
+  const lastActionResultRef = useRef(null);
+  const isPublishing = createEventFetcher.state !== 'idle';
 
   const currentStepErrors = getCreateEventStepErrors(wizard);
+
+  useEffect(() => {
+    if (!createEventFetcher.data || lastActionResultRef.current === createEventFetcher.data) return;
+
+    lastActionResultRef.current = createEventFetcher.data;
+
+    if (createEventFetcher.data.event) {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+      dispatch(resetCreateEvent());
+      showToast('Event published successfully.');
+      navigate(`/events/${createEventFetcher.data.event.id}`);
+      return;
+    }
+
+    if (createEventFetcher.data.error) {
+      showToast('Unable to publish event.', 'error');
+    }
+  }, [createEventFetcher.data, dispatch, navigate, showToast]);
 
   useEffect(() => {
     if (hasLoadedDraftRef.current) return;
@@ -107,15 +126,13 @@ export const CreateEventPage = () => {
 
     if (Object.keys(errors).length > 0) return;
 
-    try {
-      const createdEvent = await createEventMutation.mutateAsync(buildEventPayload(wizard));
-      localStorage.removeItem(DRAFT_STORAGE_KEY);
-      dispatch(resetCreateEvent());
-      showToast('Event published successfully.');
-      navigate(`/events/${createdEvent.id}`);
-    } catch {
-      showToast('Unable to publish event.', 'error');
-    }
+    const formData = new FormData();
+    formData.set('payload', JSON.stringify(buildEventPayload(wizard)));
+
+    createEventFetcher.submit(formData, {
+      method: 'post',
+      action: '/create-event',
+    });
   };
 
   const handleClearDraft = () => {
@@ -351,8 +368,8 @@ export const CreateEventPage = () => {
                 Continue
               </button>
             ) : (
-              <button className="primary-button" type="button" onClick={handlePublish} disabled={createEventMutation.isPending}>
-                {createEventMutation.isPending ? 'Publishing...' : 'Publish Event'}
+              <button className="primary-button" type="button" onClick={handlePublish} disabled={isPublishing}>
+                {isPublishing ? 'Publishing...' : 'Publish Event'}
               </button>
             )}
           </div>
