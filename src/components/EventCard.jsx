@@ -3,7 +3,6 @@ import { memo } from 'react';
 const EventCardComponent = ({ event, onSelect, isFavorite, onToggleFavorite }) => {
   const { id, title, description, category, date, time, location, image, ticketTypes } = event;
 
-  // Format date to a simple readable format, e.g. "May 30, 2026"
   const formatDate = (dateStr) => {
     try {
       const options = { month: 'short', day: 'numeric', year: 'numeric' };
@@ -14,7 +13,6 @@ const EventCardComponent = ({ event, onSelect, isFavorite, onToggleFavorite }) =
     }
   };
 
-  // Find the minimum ticket price to display, e.g., "From $99" or "Free"
   const getPriceDisplay = () => {
     if (!ticketTypes || ticketTypes.length === 0) return 'Free';
     const prices = ticketTypes.map(t => t.price);
@@ -25,17 +23,15 @@ const EventCardComponent = ({ event, onSelect, isFavorite, onToggleFavorite }) =
   };
 
   const handleFavoriteClick = (e) => {
-    e.stopPropagation(); // Prevent card navigation
+    e.stopPropagation();
     onToggleFavorite(id);
   };
 
   return (
-    <article className="event-card" onClick={() => onSelect(id)} style={{ cursor: 'pointer' }}>
-      {/* Event Header Image and Category */}
+    <article className="event-card event-card-clickable" onClick={() => onSelect(id)}>
       <div className="event-card-image-wrapper">
         <span className="event-card-category-badge">{category}</span>
-        
-        {/* Heart/Like Icon */}
+
         <button
           className={`event-card-favorite-btn ${isFavorite ? 'liked' : ''}`}
           aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
@@ -49,7 +45,6 @@ const EventCardComponent = ({ event, onSelect, isFavorite, onToggleFavorite }) =
         <img src={image} alt={title} className="event-card-image" loading="lazy" />
       </div>
 
-      {/* Card Information Body */}
       <div className="event-card-content">
         <div className="event-card-meta">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
