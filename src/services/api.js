@@ -31,6 +31,14 @@ export const api = {
     return request(`/events/${id}`);
   },
 
+  // POST /events
+  createEvent: async (event) => {
+    return request('/events', {
+      method: 'POST',
+      body: JSON.stringify(event),
+    });
+  },
+
   // GET /bookings?userId=user1
   getBookings: async (userId = 'user1') => {
     return request(`/bookings?userId=${userId}`);

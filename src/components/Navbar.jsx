@@ -64,6 +64,15 @@ export const Navbar = () => {
             <li>
               <NavLink
                 className={({ isActive }) => `nav-button ${isActive ? 'active' : ''}`}
+                to="/create-event"
+                onClick={closeMobileMenu}
+              >
+                Create Event
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                className={({ isActive }) => `nav-button ${isActive ? 'active' : ''}`}
                 to="/profile"
                 onClick={closeMobileMenu}
               >

@@ -1179,6 +1179,154 @@
   margin: 16px 0;
 }
 
+.profile-input {
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font: inherit;
+  padding: 12px 14px;
+  transition: var(--transition-all);
+  width: 100%;
+}
+
+.profile-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+  outline: none;
+}
+
+.create-event-layout {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 180px minmax(0, 1fr);
+}
+
+.create-event-steps {
+  align-self: start;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  position: sticky;
+  top: 96px;
+}
+
+.create-event-steps button {
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-weight: 700;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.create-event-steps button.active,
+.create-event-steps button:hover {
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.create-event-panel {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+}
+
+.create-event-panel h2 {
+  color: var(--text-primary);
+  font-size: 1.4rem;
+}
+
+.create-event-grid,
+.ticket-editor-row {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ticket-editor-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.ticket-editor-heading h3 {
+  color: var(--text-primary);
+}
+
+.ticket-editor-list {
+  display: grid;
+  gap: 16px;
+}
+
+.ticket-editor-row {
+  align-items: end;
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.create-event-preview {
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.create-event-preview img {
+  aspect-ratio: 16 / 7;
+  object-fit: cover;
+  width: 100%;
+}
+
+.create-event-preview > span,
+.create-event-preview > h3,
+.create-event-preview > p,
+.create-event-preview > .profile-list {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.create-event-preview > span {
+  color: var(--primary);
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  margin-top: 20px;
+  text-transform: uppercase;
+}
+
+.create-event-preview h3 {
+  color: var(--text-primary);
+  font-size: 1.45rem;
+  margin-top: 8px;
+}
+
+.create-event-preview p {
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+.create-event-preview .profile-list {
+  margin-bottom: 20px;
+  margin-top: 18px;
+}
+
+.create-event-actions {
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
 /* Footer */
 .app-footer {
   background-color: var(--bg-surface);
@@ -1215,9 +1363,16 @@
   .events-grid,
   .related-events-grid,
   .profile-layout,
+  .create-event-layout,
+  .create-event-grid,
+  .ticket-editor-row,
   .details-layout,
   .details-loading {
     grid-template-columns: 1fr;
+  }
+
+  .create-event-steps {
+    position: static;
   }
 
   .details-list {
